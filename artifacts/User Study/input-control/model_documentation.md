@@ -4,7 +4,7 @@ A model to predict if the length of the stay at a hospital is over the mean leng
 
 ## Information about the model
 
-This model is partly developed by Avinash Bhat at McGill University, on November 29, 2021. This is a combination of a Logistic Regression and Doc2Vec model. The model is available to all under a MIT license.
+This model is partly developed by XXX, on November 29, 2021. This is a combination of a Logistic Regression and Doc2Vec model. The model is available to all under a MIT license.
 
 ## Intended Use
 
