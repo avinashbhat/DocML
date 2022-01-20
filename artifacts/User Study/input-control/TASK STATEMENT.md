@@ -1,0 +1,8 @@
+### TASK STATEMENT
+You have been provided a Jupyter Notebook that develops multiple Linear Regression models to predict if length of stay at a healthcare institution tends to go over a mean value. You are also provided with a partially completed model card in the form of a README.md file that reports the model. Your goal during this study is to select and deliver the trained models (by serializing and saving the model of your choice) as well as its as well as its documentation for the potential users of the model output (e.g. hospital staff for allocating beds, insurance companies). You will be given two tasks during the user study. 
+
+#### Task 1 
+The first task is to choose one among the two developed models, and complete the documentation for the model of your choice. The documentation is partially completed to aid you in this task. You are allowed and encouraged to make any update to the existing content to improve its accuracy, completeness, or other quality attributes. You will be given 20 minutes for this task. Once you are done with the activity, please save your documentation file as ‘README-1.md’.
+
+#### Task 2
+The second task is to update the model development and related documentation. Concretely, you are asked to develop a Doc2Vec model based on one of the available categories (‘PROCEDURE’) from the given dataset. Compare your model with other ones in the notebook, select and save the best model in the given time limit. Also is to update the documentation in the model card based on your changes. You will be given 20 minutes for this task. Once you are satisfied, please save your file as ‘README-2.md’.
