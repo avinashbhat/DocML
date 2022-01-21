@@ -15,4 +15,3 @@ The `artifacts/` folder contains the following files.
 - `User-Study/Post-Study Survey Interview` - Questions asked to the participants at the end of user study.
 - `User-Study/input-control` - Notebook, corresponding data, partially completed documentation given to the control group participants.
 - `User-Study/input-experimental` - Notebook, corresponding data, partially completed documentation given to the experimental group participants.
-- `User-Study/user_study_responses.xlsx` - Anonymized responses of the participants for the demographic survey, post study survey, their performance for the inconsistencies and evaluation of the created documentation using the rubric.
