@@ -1,4 +1,5 @@
-# Code and artifacts for the paper "Nudging and Traceability: Moving the Needle From Aspirations to Practice in Model Documentation"
+# Code and artifacts for the paper "Aspirations and Practice of Model Documentation: Moving the Needle with
+Nudging and Traceability"
 
 
 The repository contains the source code for the discussed tool in the paper and the relevant artifacts that were used for the creation of the rubric and the user study.
