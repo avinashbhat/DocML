@@ -3,44 +3,64 @@ import { ReactWidget } from '@jupyterlab/apputils';
 import { Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import { Button, Dropdown, Menu } from 'antd';
 import clone from 'lodash/clone';
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { stages } from '../constants';
 
-interface IProps {
+interface IStageDropdownProps {
   notebook: Notebook;
 }
-// TODO regex is not perfect, check fuzzy match?
-const pattern = /(\[model card\] stage: )[\w ]*(.*)/;
 
-const StageDropdown: React.FC<IProps> = ({ notebook }: IProps) => {
-  const menu = (
+/**
+ * Pattern to match model card stage comments in notebook cells
+ * Format: # [model card] stage: <stage name>
+ * TODO: Improve regex pattern for better fuzzy matching
+ */
+const STAGE_PATTERN = /(\[model card\] stage: )[\w ]*(.*)/;
+
+/**
+ * Dropdown component for selecting model card stages
+ */
+const StageDropdown: React.FC<IStageDropdownProps> = React.memo(({ notebook }: IStageDropdownProps) => {
+  const handleStageSelect = useCallback((stageId: string, stageName: string) => {
+    if (!notebook.activeCell) {
+      console.warn('No active cell');
+      return;
+    }
+
+    // Set stage metadata
+    notebook.activeCell.model.metadata.set('stage', stageId);
+
+    // Add or update stage comment as visual hint
+    const text = notebook.activeCell.model.value.text;
+    const match = text.match(STAGE_PATTERN);
+
+    if (match) {
+      // Update existing stage comment
+      notebook.activeCell.model.value.text = text.replace(
+        STAGE_PATTERN,
+        `$1${stageName}$2`
+      );
+    } else {
+      // Add new stage comment
+      notebook.activeCell.model.value.insert(
+        0,
+        `# [model card] stage: ${stageName}\n`
+      );
+    }
+  }, [notebook]);
+
+  const menu = useMemo(() => (
     <Menu>
       {Array.from(stages.entries()).map(([stageId, stageName], idx) => (
         <Menu.Item
           key={idx}
-          onClick={(): void => {
-            notebook.activeCell.model.metadata.set('stage', stageId);
-            // comment as a visual hint
-            const text = notebook.activeCell.model.value.text;
-            const m = text.match(pattern);
-            if (m) {
-              notebook.activeCell.model.value.text = text.replace(
-                pattern,
-                `$1${stageName}$2`
-              );
-            } else {
-              notebook.activeCell.model.value.insert(
-                0,
-                `# [model card] stage: ${stageName}\n`
-              );
-            }
-          }}
+          onClick={() => handleStageSelect(stageId, stageName)}
         >
           {stageName}
         </Menu.Item>
       ))}
     </Menu>
-  );
+  ), [handleStageSelect]);
 
   return (
     <Dropdown overlay={menu}>
@@ -49,10 +69,16 @@ const StageDropdown: React.FC<IProps> = ({ notebook }: IProps) => {
       </Button>
     </Dropdown>
   );
-};
+});
 
+StageDropdown.displayName = 'StageDropdown';
+
+/**
+ * ReactWidget wrapper for the stage dropdown component
+ * Used in JupyterLab's popup system
+ */
 export class PopupWidget extends ReactWidget {
-  /** Data in the current notebook */
+  /** Reference to the notebook */
   private _notebook: Notebook;
 
   constructor(panel: NotebookPanel) {
@@ -60,10 +86,16 @@ export class PopupWidget extends ReactWidget {
     this._notebook = panel.content;
   }
 
+  /**
+   * Update the notebook reference
+   */
   updateModel(panel: NotebookPanel): void {
     this._notebook = clone(panel.content);
   }
 
+  /**
+   * Render the stage dropdown component
+   */
   render(): JSX.Element {
     return <StageDropdown notebook={this._notebook} />;
   }

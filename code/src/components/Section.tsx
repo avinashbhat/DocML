@@ -1,25 +1,21 @@
-import { PathExt } from "@jupyterlab/coreutils";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { INotebookModel, Notebook } from "@jupyterlab/notebook";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-import { Button, Row, Col, Space, Tooltip, Modal } from "antd";
+import { Button, Row, Col, Space, Tooltip } from "antd";
 import { enableMapSet } from "immer";
-import React, { useEffect } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import styled from "styled-components";
-import { useImmer } from "use-immer";
-import { endTag, stages, startTag } from "../constants";
+import { stages } from "../constants";
+import { useModelCardData } from "../hooks/useModelCardData";
 import {
-  IModelCardSchema,
   ISchemaItem,
   ISchemaStageItem,
   IServerResponse,
   PanelCreateHandler
 } from "../types";
-import { generateMarkdown } from "../util";
-import { AnnotMap, getAnnotMap } from "../util/mdExtractor";
 import { jumpToCell } from "../util/notebook_private";
+import { ExportButton } from "./ExportButton";
 import HelpText from "./HelpText";
 import QuickFix from "./QuickFix";
 
@@ -80,7 +76,10 @@ const VerticalLine: any = styled.div`
   }
 `;
 
-const SectionContent: React.FC<ISectionContent> = ({
+/**
+ * Memoized component for rendering individual model card sections
+ */
+const SectionContent: React.FC<ISectionContent> = React.memo(({
   notebook,
   sectionName,
   sectionContent,
@@ -130,143 +129,40 @@ const SectionContent: React.FC<ISectionContent> = ({
           : null}
       </>
   );
-};
+});
 
-const Section: React.FC<ISectionProps> = ({
+SectionContent.displayName = 'SectionContent';
+
+/**
+ * Main Section component that displays the model card interface
+ */
+const Section: React.FC<ISectionProps> = React.memo(({
   notebook,
   context,
   docManager,
   ServerResponse,
   handler
 }: ISectionProps) => {
-  const [annotMap, updateAnnotMap] = useImmer<AnnotMap>(new Map());
-  const [data, updateData] = useImmer<IModelCardSchema>({} as IModelCardSchema);
+  // Use custom hook for managing model card data and annotations
+  const { data, annotMap, updateAnnotMap } = useModelCardData(notebook, ServerResponse);
 
-  useEffect(() => {
-    const amap = getAnnotMap(notebook);
-    const modelCard: IModelCardSchema = JSON.parse(JSON.stringify(ServerResponse)) as IModelCardSchema;
-    amap.forEach((value, key) => {
-      if (key in modelCard) {
-        const section = modelCard[key];
-        if (section && 'description' in section) {
-          section.description = value.content;
-        }
-      }
-    });
-    updateData(() => modelCard);
-    console.log(data);
-    // Add tag for title field
-    const titleKey = "modelname";
-    const modelnameSection = modelCard[titleKey];
-    if (
-      modelnameSection &&
-      'description' in modelnameSection &&
-      modelnameSection.description !== undefined &&
-      !amap.has(titleKey)
-    ) {
-      const titleCell = notebook.model?.cells.get(0)?.value;
-      if (titleCell) {
-        titleCell.insert(0, `${startTag(titleKey)}\n`);
-        titleCell.insert(titleCell.text.length, `\n${endTag(titleKey)}`);
-        amap.set(titleKey, {
-          idx: 0,
-          content: modelnameSection.description,
-        });
-      }
-    }
-    updateAnnotMap(() => amap);
-  }, [notebook, ServerResponse, data, updateAnnotMap, updateData]);
-
-
-  // TODO let user decide the name of the output file
-  // TODO test for files in a subdirectory
+  // TODO: let user decide the name of the output file
+  // TODO: test for files in a subdirectory
   return (
     <>
       <Row style={{ position: "sticky", top: 10, float: "right" }}>
         <Space>
           <Col span={6}>
-            <Button
-              type="primary"
-              onClick={(): any => {
-                handler();
-              }}
-            >
+            <Button type="primary" onClick={handler}>
               Refresh
             </Button>
           </Col>
           <Col span={6}>
-            <Button
-              type="primary"
-              onClick={(): any => {
-                let emptySections = [];
-                Object.entries(data).map(
-                  ([sectionName, sectionContent]: [string, ISchemaItem], idx: number) => {
-                    if (!sectionContent.description) {
-                      if (!['#', 'Miscellaneous'].includes(sectionContent.title)) {
-                        emptySections.push(sectionContent.title);
-                      }
-                    }
-                  });
-                if (emptySections) {
-                  Modal.confirm({
-                    title: 'The following sections are still empty!',
-                    icon: <ExclamationCircleOutlined />,
-                    content: [emptySections.join(', '), 'Would you like to add the documentation before exporting?'].join('.\n'),
-                    okText: 'Yes',
-                    cancelText: 'No (Proceed with exporting)',
-                    onOk() {
-                    },
-                    onCancel() {
-                      const dirname = PathExt.dirname(context.path);
-                      let fileName = PathExt.basename(context.path);
-                      fileName = fileName.split(PathExt.extname(fileName))[0];
-                      fileName = fileName.split(" ").join("_");
-                      fileName = "card_" + fileName + ".md";
-                      const filePath = PathExt.join(dirname, fileName);
-                      let mdFile = docManager.findWidget(filePath, "Editor");
-                      if (mdFile === undefined) {
-                        // create the file in the same directory as the notebook
-                        mdFile = docManager.createNew(filePath, "Editor");
-                      }
-                      if (mdFile) {
-                        void mdFile.context.ready.then(() => {
-                          // Access the editor content - this is specific to JupyterLab's editor widget
-                          const editorWidget = mdFile as any;
-                          if (editorWidget.content?.model?.value) {
-                            editorWidget.content.model.value.text = generateMarkdown(data);
-                          }
-                        });
-                        mdFile.close();
-                      }
-                      void docManager.openOrReveal(filePath, 'Markdown Preview');
-                    },
-                  });
-                } else {
-                  const dirname = PathExt.dirname(context.path);
-                  let fileName = PathExt.basename(context.path);
-                  fileName = fileName.split(PathExt.extname(fileName))[0];
-                  fileName = fileName.split(" ").join("_");
-                  fileName = "card_" + fileName + ".md";
-                  const filePath = PathExt.join(dirname, fileName);
-                  let mdFile = docManager.findWidget(filePath, "Editor");
-                  if (mdFile === undefined) {
-                    mdFile = docManager.createNew(filePath, "Editor");
-                  }
-                  if (mdFile) {
-                    void mdFile.context.ready.then(() => {
-                      // Access the editor content - this is specific to JupyterLab's editor widget
-                      const editorWidget = mdFile as any;
-                      if (editorWidget.content?.model?.value) {
-                        editorWidget.content.model.value.text = generateMarkdown(data);
-                      }
-                    });
-                  }
-                  void docManager.openOrReveal(filePath, 'Markdown Preview');
-                }
-              }}
-            >
-              Export to MD
-            </Button>
+            <ExportButton
+              context={context}
+              docManager={docManager}
+              data={data}
+            />
           </Col>
         </Space>
       </Row>
@@ -298,6 +194,8 @@ const Section: React.FC<ISectionProps> = ({
       )}
     </>
   );
-};
+});
+
+Section.displayName = 'Section';
 
 export default Section;

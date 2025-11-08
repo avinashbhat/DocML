@@ -1,67 +1,102 @@
-/* eslint-disable @typescript-eslint/camelcase */
-import React from 'react';
 import { EditTwoTone } from '@ant-design/icons';
-import { Notebook } from '@jupyterlab/notebook';
 import { MarkdownCellModel } from '@jupyterlab/cells';
+import { Notebook } from '@jupyterlab/notebook';
 import { Popconfirm } from 'antd';
-import { jumpToCell } from '../util/notebook_private';
-import { AnnotContent } from '../util/mdExtractor';
+import React, { useCallback } from 'react';
+import { Updater } from 'use-immer';
 import { stages } from '../constants';
-export interface IQuickFix {
+import { AnnotContent, AnnotMap } from '../util/mdExtractor';
+import { jumpToCell } from '../util/notebook_private';
+
+export interface IQuickFixProps {
+  /** Section identifier */
   sectionName: string;
+  /** Display title for the section */
   sectionTitle: string;
-  annotMap: Map<string, AnnotContent>;
-  updateAnnotMap: Function;
+  /** Map of existing annotations */
+  annotMap: AnnotMap;
+  /** Function to update annotation map */
+  updateAnnotMap: Updater<AnnotMap>;
+  /** Notebook instance */
   notebook: Notebook;
-  idx: number; // index for insertion
+  /** Cell index for insertion */
+  idx: number;
 }
 
-const annotationContent = (name: string, title: string): string => {
+/**
+ * Generate markdown content for a new annotation cell
+ */
+const generateAnnotationContent = (name: string, title: string): string => {
   return `# ${title}\n<!-- @md-${name} -->\n<!-- /md-${name} -->`;
 };
 
-const QuickFix: React.FC<IQuickFix> = ({
+/**
+ * QuickFix component for adding or editing model card sections
+ */
+const QuickFix: React.FC<IQuickFixProps> = React.memo(({
   sectionName,
   sectionTitle,
   annotMap,
   updateAnnotMap,
   notebook,
   idx
-}: IQuickFix) => {
-  const existed = annotMap.has(sectionName);
-  return existed ? (
-    <EditTwoTone style={{ fontSize: "65%", paddingRight: "1px" }}
-      onClick={(): void => {
-        jumpToCell(notebook, annotMap.get(sectionName).idx);
-      }}
-    />
-  ) : (
+}: IQuickFixProps) => {
+  const annotation = annotMap.get(sectionName);
+  const existed = annotation !== undefined;
+
+  const handleEditClick = useCallback(() => {
+    if (annotation) {
+      jumpToCell(notebook, annotation.idx);
+    }
+  }, [annotation, notebook]);
+
+  const handleAddSection = useCallback(() => {
+    if (!notebook.model) {
+      console.error('Notebook model not initialized');
+      return;
+    }
+
+    notebook.model.cells.insert(
+      idx,
+      new MarkdownCellModel({
+        cell: {
+          cell_type: 'markdown',
+          source: generateAnnotationContent(sectionName, sectionTitle),
+          metadata: {}
+        }
+      })
+    );
+
+    updateAnnotMap(draft => {
+      draft.set(sectionName, { idx, content: '' });
+    });
+
+    jumpToCell(notebook, idx);
+  }, [notebook, idx, sectionName, sectionTitle, updateAnnotMap]);
+
+  if (existed) {
+    return (
+      <EditTwoTone
+        style={{ fontSize: "65%", paddingRight: "1px" }}
+        onClick={handleEditClick}
+      />
+    );
+  }
+
+  return (
     <Popconfirm
       title={`Add a ${
         stages.has(sectionName) ? 'description' : 'new cell'
       } for ${sectionTitle}?`}
-      onConfirm={(): void => {
-        notebook.model.cells.insert(
-          idx,
-          new MarkdownCellModel({
-            cell: {
-              cell_type: 'markdown',
-              source: annotationContent(sectionName, sectionTitle),
-              metadata: {}
-            }
-          })
-        );
-        updateAnnotMap(draft => {
-          draft.set(sectionName, idx);
-        });
-        jumpToCell(notebook, idx);
-      }}
+      onConfirm={handleAddSection}
       okText="Yes"
       cancelText="No"
     >
       <EditTwoTone style={{ fontSize: "65%", paddingRight: "1px" }} />
     </Popconfirm>
   );
-};
+});
+
+QuickFix.displayName = 'QuickFix';
 
 export default QuickFix;
