@@ -1,15 +1,15 @@
 "use strict";
 // COMMAND: node main.js ../assets/News_Categorization_MNB.ipynb
 
-var py = require("./es5");
-var graphing = require("./graph.js").Graph;
-var fs = require("fs");
-var ic = require("./infocell.js");
-var dep = require("./cell_deps.js");
+const py = require("./es5");
+const graphing = require("./graph.js").Graph;
+const fs = require("fs");
+const ic = require("./infocell.js");
+const dep = require("./cell_deps.js");
 const SCHEMAS_PATH = "/lale/sklearn/";
-var path = require("path");
+const path = require("path");
 
-var countLines = 0;
+let countLines = 0;
 
 const stages = new Map([
   ["plotting", "Plotting"],
@@ -49,7 +49,7 @@ class ModelCard {
         },
       };
       sections["sections"].forEach((s) => {
-        var keyName = s["section"].split(" ").join("").toLowerCase();
+        let keyName = s["section"].split(" ").join("").toLowerCase();
         if (keyName === "trainingprocedureanddata") {
           keyName = "modeltraining";
         } else if (keyName === "evaluationprocedureanddata") {
@@ -175,7 +175,7 @@ class ModelCard {
           },
         };
         defaultSections.forEach((s) => {
-          var keyName = s["section"].split(" ").join("").toLowerCase();
+          let keyName = s["section"].split(" ").join("").toLowerCase();
           if (keyName === "trainingprocedureanddata") {
             keyName = "modeltraining";
           } else if (keyName === "evaluationprocedureanddata") {
@@ -244,9 +244,9 @@ function convertColorToLabel(content) {
   // evaluation -> orange
   // model deployment -> pink
 
-  var color_map = dep.printLabels(content);
+  let color_map = dep.printLabels(content);
 
-  var mapObj = {
+  const mapObj = {
     red: "Data collection",
     yellow: "Data cleaning",
     green: "Data labelling",
@@ -258,13 +258,13 @@ function convertColorToLabel(content) {
     white: "Hyperparameters",
   };
 
-  var re = new RegExp(Object.keys(mapObj).join("|"), "gi");
+  const re = new RegExp(Object.keys(mapObj).join("|"), "gi");
   color_map = color_map.replace(re, function(matched) {
     return mapObj[matched];
   });
-  
+
   color_map = color_map.split("\n");
-  var new_color_map = {};
+  const new_color_map = {};
 
   for (let element of color_map) {
     element = element.split("->");
@@ -272,10 +272,10 @@ function convertColorToLabel(content) {
   }
 
   const testFolder = SCHEMAS_PATH;
-  var schemas = {};
-  var filenames = fs.readdirSync(__dirname + testFolder);
+  const schemas = {};
+  const filenames = fs.readdirSync(__dirname + testFolder);
   filenames.forEach((file) => {
-    var newname = file.replace("_", "");
+    let newname = file.replace("_", "");
     newname = newname.replace(".py", "");
     schemas[newname] = file;
   });
@@ -284,29 +284,28 @@ function convertColorToLabel(content) {
 
 function readCells(content) {
   const model_card = new ModelCard();
-  let jsondata = JSON.parse(content);
+  const jsondata = JSON.parse(content);
 
-  var temp_res = convertColorToLabel(jsondata);
-  var new_color_map = temp_res[0];
+  const temp_res = convertColorToLabel(jsondata);
+  const new_color_map = temp_res[0];
   model_card.hyperparamschemas = temp_res[1];
 
-  var notebookCode = "\n";
-  var notebookMarkdown = "";
+  let notebookCode = "\n";
+  let notebookMarkdown = "";
   const rewriter = new py.MagicsRewriter();
-  var currStage = "miscellaneous";
   let id_count = 0;
   let flag = true;
 
   for (let cell of jsondata["cells"]) {
-    let currStage = "miscellaneous";
+    let cellStage = "miscellaneous";  // Renamed to avoid shadowing
     let sourceCode = "";
     cell["source"] = cell["source"].join("");
     if (cell["cell_type"] === "markdown") {
-      if (currStage in model_card.JSONSchema) {
-        model_card.JSONSchema[currStage]["markdown"] += "\n" + cell["source"];
+      if (cellStage in model_card.JSONSchema) {
+        model_card.JSONSchema[cellStage]["markdown"] += "\n" + cell["source"];
       }
       for (let mdline of cell["source"]) {
-        var matches = mdline.match(/\bhttps?:\/\/[\S][^)]+/gi);
+        const matches = mdline.match(/\bhttps?:\/\/[\S][^)]+/gi);
         if (matches !== null && "references" in model_card.JSONSchema) {
           model_card.JSONSchema["references"]["cell_ids"].push(id_count);
           model_card.JSONSchema["references"]["links"] = model_card.JSONSchema[
@@ -314,7 +313,7 @@ function readCells(content) {
           ]["links"].concat(matches);
         }
       }
-      if (id_count == 0 && flag) {
+      if (id_count === 0 && flag) {
         flag = false;
         // console.log();
         // model_card.JSONSchema["modelname"]["title"] = cell["source"][0];
@@ -326,33 +325,33 @@ function readCells(content) {
       }
       id_count += 1;
       notebookMarkdown += cell["source"];
-    } else if (cell["source"][0] != undefined) {
+    } else if (cell["source"][0] !== undefined) {
       id_count += 1;
-      var key = cell["execution_count"].toString();
+      const key = cell["execution_count"].toString();
       // user reclassification
       if (key in new_color_map) {
-        var stage = new_color_map[key];
+        const stage = new_color_map[key];
         const metadataStage = cell["metadata"]["stage"];
         // user reclassification
         if (metadataStage !== undefined && stages.has(metadataStage)) {
-          currStage = metadataStage;
+          cellStage = metadataStage;
         } else {
           if (
-            stage == "Data collection" ||
-            stage == "Data cleaning" ||
-            stage == "Data labelling"
+            stage === "Data collection" ||
+            stage === "Data cleaning" ||
+            stage === "Data labelling"
           ) {
-            currStage = "datacleaning";
-          } else if (stage == "Feature Engineering") {
-            currStage = "preprocessing";
-          } else if (stage == "Training") {
-            currStage = "modeltraining";
-          } else if (stage == "Evaluation") {
-            currStage = "modelevaluation";
-          } else if (stage == "Plotting") {
-            currStage = "plotting";
-          } else if (stage == "Hyperparameters") {
-            currStage = "hyperparameters";
+            cellStage = "datacleaning";
+          } else if (stage === "Feature Engineering") {
+            cellStage = "preprocessing";
+          } else if (stage === "Training") {
+            cellStage = "modeltraining";
+          } else if (stage === "Evaluation") {
+            cellStage = "modelevaluation";
+          } else if (stage === "Plotting") {
+            cellStage = "plotting";
+          } else if (stage === "Hyperparameters") {
+            cellStage = "hyperparameters";
           }
         }
       }
@@ -363,43 +362,43 @@ function readCells(content) {
           line = rewriter.rewriteLineMagic(line);
         }
         countLines += 1;
-        if (currStage in model_card.JSONSchema) {
-          model_card.JSONSchema[currStage]["lineNumbers"].push(countLines);
+        if (cellStage in model_card.JSONSchema) {
+          model_card.JSONSchema[cellStage]["lineNumbers"].push(countLines);
         }
         model_card.line_to_cell[countLines] = id_count;
         sourceCode += line + "\n";
       }
       notebookCode += sourceCode;
-      let code_cell = createCell(
+      const code_cell = createCell(
         sourceCode,
         cell["execution_count"],
         cell["outputs"][0]
       );
 
-      if (cell["outputs"].length != 0) {
+      if (cell["outputs"].length !== 0) {
         for (let output in cell["outputs"]) {
-          if (cell["outputs"][output]["output_type"] == "display_data") {
-            if (currStage in model_card.JSONSchema) {
-              model_card.JSONSchema[currStage]["figures"].push(
+          if (cell["outputs"][output]["output_type"] === "display_data") {
+            if (cellStage in model_card.JSONSchema) {
+              model_card.JSONSchema[cellStage]["figures"].push(
                 cell["outputs"][output]["data"]["image/png"]
               );
             }
-          } else if (cell["outputs"][output]["output_type"] == "stream") {
-            var info = cell["outputs"][output]["text"];
-            if (currStage in model_card.JSONSchema) {
-              model_card.JSONSchema[currStage]["outputs"].push(info);
+          } else if (cell["outputs"][output]["output_type"] === "stream") {
+            const info = cell["outputs"][output]["text"];
+            if (cellStage in model_card.JSONSchema) {
+              model_card.JSONSchema[cellStage]["outputs"].push(info);
             }
           }
         }
       }
-      if (currStage in model_card.JSONSchema) {
-        model_card.JSONSchema[currStage]["cells"] += JSON.stringify(
+      if (cellStage in model_card.JSONSchema) {
+        model_card.JSONSchema[cellStage]["cells"] += JSON.stringify(
           code_cell.text,
           null,
           2
         );
-        model_card.JSONSchema[currStage]["source"] += sourceCode;
-        model_card.JSONSchema[currStage]["cell_ids"].push(id_count);
+        model_card.JSONSchema[cellStage]["source"] += sourceCode;
+        model_card.JSONSchema[cellStage]["cell_ids"].push(id_count);
       }
     }
   }
@@ -409,38 +408,39 @@ function readCells(content) {
 }
 
 function printLineDefUse(code, model_card) {
-  let tree = py.parse(code);
-  let cfg = new py.ControlFlowGraph(tree);
+  const tree = py.parse(code);
+  const cfg = new py.ControlFlowGraph(tree);
   const analyzer = new py.DataflowAnalyzer();
   const flows = analyzer.analyze(cfg).dataflows;
 
-  var importScope = {};
-  var lineToCode = {};
-  var pLines;
+  const importScope = {};
+  const lineToCode = {};
+  let pLines;
   if ("plotting" in model_card.JSONSchema) {
     pLines = model_card.getPLineNumbers();
   }
 
-  var dcLines;
+  let dcLines;
   if ("datacleaning" in model_card.JSONSchema) {
     dcLines = model_card.getDCLineNumbers();
   }
 
-  var ppLines;
+  let ppLines;
   if ("preprocessing" in model_card.JSONSchema) {
     ppLines = model_card.getPPLineNumbers();
   }
 
-  var mtLines;
-
+  let mtLines;
   if ("modeltraining" in model_card.JSONSchema) {
     mtLines = model_card.getMTLineNumbers();
   }
-  var meLines;
+
+  let meLines;
   if ("modelevaluation" in model_card.JSONSchema) {
     meLines = model_card.getMELineNumbers();
-  } 
-  var hpLines;
+  }
+
+  let hpLines;
   if ("hyperparameters" in model_card.JSONSchema) {
     hpLines = model_card.getHPLineNumbers();
   }
