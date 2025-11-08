@@ -12,7 +12,6 @@ export interface IHelpTextProps {
  * Component for displaying example links for model card sections
  */
 const HelpText: React.FC<IHelpTextProps> = React.memo(({
-  toolTipContent,
   helpUrl
 }: IHelpTextProps) => {
   const handleOpenUrl = useCallback((url: string) => {

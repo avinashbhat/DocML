@@ -22,17 +22,16 @@ export const useModelCardExport = (
     fileName = "card_" + fileName + ".md";
     const filePath = PathExt.join(dirname, fileName);
 
-    let mdFile = docManager.findWidget(filePath, "Editor");
+    let mdFile = docManager.findWidget(filePath, "Editor") as any;
     if (mdFile === undefined) {
-      mdFile = docManager.createNew(filePath, "Editor");
+      mdFile = docManager.createNew(filePath, "Editor") as any;
     }
 
-    if (mdFile) {
+    if (mdFile && mdFile.context) {
       void mdFile.context.ready.then(() => {
         // Access the editor content - this is specific to JupyterLab's editor widget
-        const editorWidget = mdFile as any;
-        if (editorWidget.content?.model?.value) {
-          editorWidget.content.model.value.text = generateMarkdown(data);
+        if (mdFile.content?.model?.value) {
+          mdFile.content.model.value.text = generateMarkdown(data);
         }
       });
     }

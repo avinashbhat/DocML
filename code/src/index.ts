@@ -1,12 +1,10 @@
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
-  ILabShell,
   ILayoutRestorer,
-  LayoutRestorer,
 } from "@jupyterlab/application";
 import { ToolbarButton, WidgetTracker } from "@jupyterlab/apputils";
-import { DocumentManager, IDocumentManager } from "@jupyterlab/docmanager";
+import { IDocumentManager } from "@jupyterlab/docmanager";
 import { NotebookPanel, INotebookModel } from "@jupyterlab/notebook";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { IDisposable } from "@lumino/disposable";
@@ -41,11 +39,10 @@ class ModelCardButton
    * @param _app The JupyterFrontEnd app.
    * @param _modelCardPanel The model card object
    */
-  // private _modelCardPanel: ModelCardPanel;
   private _app: JupyterFrontEnd;
   private _docManager: IDocumentManager;
-  private _modelCardPanel: ModelCardPanel;
-  private _context: DocumentRegistry.IContext<INotebookModel>;
+  private _modelCardPanel!: ModelCardPanel;
+  private _context!: DocumentRegistry.IContext<INotebookModel>;
 
   constructor(app: JupyterFrontEnd, docManager: IDocumentManager) {
     this._app = app;

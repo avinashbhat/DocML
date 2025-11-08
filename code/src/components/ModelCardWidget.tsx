@@ -4,7 +4,7 @@ import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { INotebookModel, Notebook, NotebookPanel } from '@jupyterlab/notebook';
 import clone from 'lodash/clone';
 import React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot, Root } from 'react-dom/client';
 import { IServerResponse, PanelCreateHandler } from '../types';
 import Section from './Section';
 
@@ -22,6 +22,8 @@ export class ModelCardWidget extends ReactWidget {
   private readonly serverResponse: IServerResponse;
   /** Handler to recreate the panel */
   private readonly createPanelHandler: PanelCreateHandler;
+  /** React root for rendering */
+  private _root: Root | null = null;
 
   constructor(
     panel: NotebookPanel,
@@ -42,15 +44,17 @@ export class ModelCardWidget extends ReactWidget {
    * Re-render the component every time an update is requested
    */
   onUpdateRequest(): void {
-    ReactDOM.render(
+    if (!this._root) {
+      this._root = createRoot(this.node);
+    }
+    this._root.render(
       <Section
         notebook={this._notebook}
         context={this._context}
         docManager={this._docManager}
         ServerResponse={this.serverResponse}
         handler={this.createPanelHandler}
-      />,
-      this.node
+      />
     );
   }
 

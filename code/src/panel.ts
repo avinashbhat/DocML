@@ -108,10 +108,16 @@ export class ModelCardPanel extends StackedPanel
       return;
     }
 
+    const activeCell = this._panel.content.activeCell;
+    if (!activeCell) {
+      console.warn('No active cell');
+      return;
+    }
+
     this._popup.updateModel(this._panel);
     const popup = new Popup({
       body: this._popup,
-      anchor: this._panel.content.activeCell,
+      anchor: activeCell,
       align: "right",
     });
     popup.launch();
@@ -140,10 +146,7 @@ export class ModelCardPanel extends StackedPanel
     }
   }
 
-  createNew(
-    panel: NotebookPanel,
-    context: DocumentRegistry.IContext<INotebookModel>
-  ): IDisposable {
+  createNew(): IDisposable {
     return new DisposableDelegate(() => {
       if (this.widgets) {
         this.widgets.forEach((widget) => {

@@ -5,7 +5,7 @@ import { Popconfirm } from 'antd';
 import React, { useCallback } from 'react';
 import { Updater } from 'use-immer';
 import { stages } from '../constants';
-import { AnnotContent, AnnotMap } from '../util/mdExtractor';
+import { AnnotMap } from '../util/mdExtractor';
 import { jumpToCell } from '../util/notebook_private';
 
 export interface IQuickFixProps {

@@ -81,7 +81,7 @@ export interface IAnnotation {
 export type PanelCreateHandler = () => void;
 
 /** Server response from model card generation */
-export interface IServerResponse extends IModelCardSchema {
+export type IServerResponse = IModelCardSchema & {
   /** Optional error message */
   msg?: string;
-}
+};

@@ -25,7 +25,7 @@ export const generateMarkdown = (data: IModelCardSchema): string => {
       }
       if (hasFigure) {
         sectionContent.figures.forEach(
-          (figure, idx) =>
+          (figure: string, idx: number) =>
             // (result += `![figure${idx}](data:image/png;base64,${figure}`)
             (result += `<img alt="figure${idx}" src="data:image/png;base64, ${figure}">\n`)
         );
