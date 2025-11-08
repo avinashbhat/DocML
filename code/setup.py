@@ -16,8 +16,8 @@ import setuptools
 HERE = Path(__file__).parent.resolve()
 
 # The name of the project
-name = "jlmc"
-pypi_name = "jlcards"
+name = "docml"
+pypi_name = "docml"
 
 lab_path = HERE / name / "labextension"
 
@@ -28,13 +28,13 @@ jstargets = [
 
 package_data_spec = {name: ["*"]}
 
-labext_name = "jlmc"
+labext_name = "docml"
 
 data_files_spec = [
     ("share/jupyter/labextensions/%s" % labext_name, str(lab_path), "**"),
     ("share/jupyter/labextensions/%s" % labext_name, str(HERE), "install.json"),
-    ("etc/jupyter/jupyter_notebook_config.d", "jupyter-config/jupyter_notebook_config.d", "jlmc.json"),
-    ("etc/jupyter/jupyter_server_config.d", "jupyter-config/jupyter_server_config.d", "jlmc.json"),
+    ("etc/jupyter/jupyter_notebook_config.d", "jupyter-config/jupyter_notebook_config.d", "docml.json"),
+    ("etc/jupyter/jupyter_server_config.d", "jupyter-config/jupyter_server_config.d", "docml.json"),
 ]
 
 cmdclass = create_cmdclass(

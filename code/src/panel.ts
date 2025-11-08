@@ -73,8 +73,8 @@ export class ModelCardPanel extends StackedPanel
       });
       return reply;
     } catch (reason) {
-      console.error(`Error on POST /jlmc/hello ${dataToSend}.\n${reason}`);
-      alert("jlmc ran into errors. Generation Failed.");
+      console.error(`Error on POST /docml/hello ${dataToSend}.\n${reason}`);
+      alert("DocML ran into errors. Generation Failed.");
       throw new Error(`Model card generation failed: ${String(reason)}`);
     }
   }

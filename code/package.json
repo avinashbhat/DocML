@@ -1,5 +1,5 @@
 {
-  "name": "jlmc",
+  "name": "docml",
   "version": "0.0.8",
   "description": "Generating model cards for models in Jupyter Notebook.",
   "keywords": [
@@ -29,7 +29,7 @@
     "build:prod": "jlpm run build:lib && jlpm run build:labextension",
     "clean": "jlpm run clean:lib",
     "clean:all": "jlpm run clean:lib && jlpm run clean:labextension",
-    "clean:labextension": "rimraf jlmc/labextension",
+    "clean:labextension": "rimraf docml/labextension",
     "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
     "eslint": "eslint . --ext .ts,.tsx --fix",
     "eslint:check": "eslint . --ext .ts,.tsx",
@@ -84,11 +84,11 @@
           "pip"
         ],
         "base": {
-          "name": "jlmc"
+          "name": "docml"
         }
       }
     },
     "extension": true,
-    "outputDir": "jlmc/labextension"
+    "outputDir": "docml/labextension"
   }
 }

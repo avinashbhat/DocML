@@ -179,7 +179,7 @@ class ModelCardButton
 }
 
 /**
- * Initialization data for the jlmc extension.
+ * Initialization data for the docml extension.
  */
 const extension: JupyterFrontEndPlugin<void> = {
   id: modelCardExtensionID,
