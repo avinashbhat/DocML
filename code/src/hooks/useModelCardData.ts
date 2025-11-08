@@ -42,14 +42,17 @@ export const useModelCardData = (
       modelnameSection.description !== undefined &&
       !amap.has(titleKey)
     ) {
-      const titleCell = notebook.model?.cells.get(0)?.value;
-      if (titleCell) {
-        titleCell.insert(0, `${startTag(titleKey)}\n`);
-        titleCell.insert(titleCell.text.length, `\n${endTag(titleKey)}`);
-        amap.set(titleKey, {
-          idx: 0,
-          content: modelnameSection.description,
-        });
+      const firstCell = notebook.model?.cells.get(0);
+      if (firstCell) {
+        const titleCell = (firstCell as any).value;
+        if (titleCell && typeof titleCell.insert === 'function') {
+          titleCell.insert(0, `${startTag(titleKey)}\n`);
+          titleCell.insert(titleCell.text.length, `\n${endTag(titleKey)}`);
+          amap.set(titleKey, {
+            idx: 0,
+            content: modelnameSection.description,
+          });
+        }
       }
     }
 

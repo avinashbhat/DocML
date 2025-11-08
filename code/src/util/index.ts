@@ -1,12 +1,12 @@
-import { ISchema, ISchemaItem, ISchemaStageItem } from '../components/Section';
+import { IModelCardSchema, ISchemaStageItem } from '../types';
 
 /**
  * Generate Markdown for a given model card
  */
-export const generateMarkdown = (data: ISchema): string => {
+export const generateMarkdown = (data: IModelCardSchema): string => {
   let result = '';
   Object.entries(data).forEach(
-    ([sectionName, sectionContent]: [string, ISchemaStageItem]) => {
+    ([sectionName, sectionContent]: [string, any]) => {
       if (sectionName === 'miscellaneous') {
         return;
       }

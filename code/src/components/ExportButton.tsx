@@ -50,7 +50,7 @@ export const ExportButton: React.FC<IExportButtonProps> = React.memo(({
     } else {
       exportToMarkdown();
     }
-  }, [emptySections, exportToMarkdown, getEmptySections]);
+  }, [exportToMarkdown, getEmptySections]);
 
   return (
     <Button type="primary" onClick={handleExport}>

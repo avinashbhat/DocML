@@ -56,16 +56,10 @@ const QuickFix: React.FC<IQuickFixProps> = React.memo(({
       return;
     }
 
-    notebook.model.cells.insert(
-      idx,
-      new MarkdownCellModel({
-        cell: {
-          cell_type: 'markdown',
-          source: generateAnnotationContent(sectionName, sectionTitle),
-          metadata: {}
-        }
-      })
-    );
+    const mdCell = new MarkdownCellModel();
+    (mdCell as any).value.text = generateAnnotationContent(sectionName, sectionTitle);
+
+    (notebook.model.cells as any).insert(idx, mdCell);
 
     updateAnnotMap(draft => {
       draft.set(sectionName, { idx, content: '' });

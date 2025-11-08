@@ -103,12 +103,14 @@ const SectionContent: React.FC<ISectionContent> = React.memo(({
         <div style={{ display: "block" }}>
           {sectionName !== "modelname" &&
             "cell_ids" in sectionContent &&
-            sectionContent.cell_ids.length > 0 ? (
+            sectionContent.cell_ids.length > 0 &&
+            notebook.model &&
+            notebook.model.cells ? (
             <Bar>
               {sectionContent.cell_ids.map((cid: number, idx: number) => (
                 <VerticalLine
                   key={idx}
-                  left={(cid / notebook.model.cells.length) * 100}
+                  left={(cid / notebook.model!.cells.length) * 100}
                   onClick={(): void => jumpToCell(notebook, cid - 1)}
                 />
               ))}
@@ -168,24 +170,25 @@ const Section: React.FC<ISectionProps> = React.memo(({
       </Row>
 
       {Object.entries(data).map(
-        ([sectionName, sectionContent]: [string, ISchemaItem], idx: number) => {
-          if (sectionName === "miscellaneous") {
+        ([sectionName, sectionContent], idx: number) => {
+          if (sectionName === "miscellaneous" || !sectionContent) {
             return null;
           }
+          const content = sectionContent as ISchemaItem | ISchemaStageItem;
           return (
             <SectionContent
               key={idx}
               notebook={notebook}
               sectionName={sectionName}
-              sectionContent={sectionContent}
+              sectionContent={content}
               quickFix={
                 <QuickFix
                   sectionName={sectionName}
-                  sectionTitle={sectionContent.title}
+                  sectionTitle={content.title}
                   annotMap={annotMap}
                   updateAnnotMap={updateAnnotMap}
                   notebook={notebook}
-                  idx={getJumpIndex(sectionName, sectionContent)}
+                  idx={getJumpIndex(sectionName, content)}
                 />
               }
             />

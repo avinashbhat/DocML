@@ -10,7 +10,7 @@ import { Cell } from '@jupyterlab/cells';
  */
 function _ensureFocus(notebook: Notebook, force = false): void {
   const activeCell = notebook.activeCell;
-  if (notebook.mode === 'edit' && activeCell) {
+  if (notebook.mode === 'edit' && activeCell && activeCell.editor) {
     if (!activeCell.editor.hasFocus()) {
       activeCell.editor.focus();
     }
@@ -31,7 +31,7 @@ const NB_CELL_CLASS = 'jp-Notebook-cell';
  * #### Notes
  * Returns -1 if the cell is not found.
  */
-function _findCell(notebook: Notebook, node: HTMLElement): number {
+function _findCell(notebook: Notebook, node: HTMLElement | null): number {
   // Trace up the DOM hierarchy to find the root cell node.
   // Then find the corresponding child and select it.
   while (node && node !== notebook.node) {
@@ -65,7 +65,9 @@ const jumpToCell = (notebook: Notebook, idx: number): void => {
     notebook.activeCellIndex = idx;
     _ensureFocus(notebook);
     notebook.mode = 'edit';
-    scrollToCell(notebook, notebook.activeCell);
+    if (notebook.activeCell) {
+      scrollToCell(notebook, notebook.activeCell);
+    }
   }, 0);
 };
 

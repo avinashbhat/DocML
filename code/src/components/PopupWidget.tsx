@@ -27,25 +27,31 @@ const StageDropdown: React.FC<IStageDropdownProps> = React.memo(({ notebook }: I
       return;
     }
 
+    const cellModel = notebook.activeCell.model as any;
+
     // Set stage metadata
-    notebook.activeCell.model.metadata.set('stage', stageId);
+    if (cellModel.metadata) {
+      cellModel.metadata.set('stage', stageId);
+    }
 
     // Add or update stage comment as visual hint
-    const text = notebook.activeCell.model.value.text;
-    const match = text.match(STAGE_PATTERN);
+    if (cellModel.value && cellModel.value.text !== undefined) {
+      const text = cellModel.value.text;
+      const match = text.match(STAGE_PATTERN);
 
-    if (match) {
-      // Update existing stage comment
-      notebook.activeCell.model.value.text = text.replace(
-        STAGE_PATTERN,
-        `$1${stageName}$2`
-      );
-    } else {
-      // Add new stage comment
-      notebook.activeCell.model.value.insert(
-        0,
-        `# [model card] stage: ${stageName}\n`
-      );
+      if (match) {
+        // Update existing stage comment
+        cellModel.value.text = text.replace(
+          STAGE_PATTERN,
+          `$1${stageName}$2`
+        );
+      } else {
+        // Add new stage comment
+        cellModel.value.insert(
+          0,
+          `# [model card] stage: ${stageName}\n`
+        );
+      }
     }
   }, [notebook]);
 
