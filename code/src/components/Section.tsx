@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PathExt } from "@jupyterlab/coreutils";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
 import { INotebookModel, Notebook } from "@jupyterlab/notebook";
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { Button, Row, Col, Space, Tooltip, Modal } from "antd";
 import { enableMapSet } from "immer";
 import React, { useEffect } from "react";
@@ -10,13 +10,18 @@ import ReactMarkdown from "react-markdown";
 import styled from "styled-components";
 import { useImmer } from "use-immer";
 import { endTag, stages, startTag } from "../constants";
+import {
+  IModelCardSchema,
+  ISchemaItem,
+  ISchemaStageItem,
+  IServerResponse,
+  PanelCreateHandler
+} from "../types";
 import { generateMarkdown } from "../util";
 import { AnnotMap, getAnnotMap } from "../util/mdExtractor";
 import { jumpToCell } from "../util/notebook_private";
-import QuickFix from "./QuickFix";
 import HelpText from "./HelpText";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
-
+import QuickFix from "./QuickFix";
 
 enableMapSet();
 
@@ -24,43 +29,10 @@ interface ISectionProps {
   notebook: Notebook;
   context: DocumentRegistry.IContext<INotebookModel>;
   docManager: IDocumentManager;
-  ServerResponse: JSON;
-  handler: any;
+  ServerResponse: IServerResponse;
+  handler: PanelCreateHandler;
 }
 
-/** Items in the generated model card */
-export interface ISchemaItem {
-  /** title of the section */
-  title: string;
-  /** customized description */
-  description: string;
-  tooltip: string;
-  helpurl: string[];
-}
-export interface ISchemaStageItem extends ISchemaItem {
-  cell_ids: number[];
-  figures: string[];
-}
-export interface ISchema {
-  modelname: { title: string };
-  basicinformation: ISchemaItem;
-  intendeduse: ISchemaItem;
-  factors: ISchemaItem;
-  ethicalconsiderations: ISchemaItem;
-  caveatsandrecommendations: ISchemaItem
-  author: ISchemaItem;
-  datasets: ISchemaItem;
-  references: ISchemaItem;
-  disaggregatedevaluationresult: ISchemaStageItem;
-  libraries: ISchemaItem;
-  plotting: ISchemaStageItem;
-  datacleaning: ISchemaStageItem;
-  preprocessing: ISchemaStageItem;
-  hyperparameters: ISchemaStageItem;
-  modeltraining: ISchemaStageItem;
-  modelevaluation: ISchemaStageItem;
-  miscellaneous: ISchemaStageItem;
-}
 interface ISectionContent {
   notebook: Notebook;
   sectionName: string;
@@ -68,13 +40,17 @@ interface ISectionContent {
   quickFix: React.ReactNode;
 }
 
-const getJumpIndex = (sectionName: string, sectionContent: any): number => {
+const getJumpIndex = (
+  sectionName: string,
+  sectionContent: ISchemaItem | ISchemaStageItem
+): number => {
   if (sectionName === "author") {
     return 1;
   }
   // if it's a stage, jump to the top cell if existed
-  if (stages.has(sectionName) && sectionContent.cell_ids.length > 0) {
-    return sectionContent.cell_ids[0];
+  const stageContent = sectionContent as ISchemaStageItem;
+  if (stages.has(sectionName) && stageContent.cell_ids && stageContent.cell_ids.length > 0) {
+    return stageContent.cell_ids[0];
   }
   // otherwise insert to top
   return 0;
@@ -164,34 +140,42 @@ const Section: React.FC<ISectionProps> = ({
   handler
 }: ISectionProps) => {
   const [annotMap, updateAnnotMap] = useImmer<AnnotMap>(new Map());
-  const [data, updateData] = useImmer<ISchema>({} as ISchema);
+  const [data, updateData] = useImmer<IModelCardSchema>({} as IModelCardSchema);
 
   useEffect(() => {
     const amap = getAnnotMap(notebook);
-    let modelCard: any = JSON.parse(JSON.stringify(ServerResponse));
+    const modelCard: IModelCardSchema = JSON.parse(JSON.stringify(ServerResponse)) as IModelCardSchema;
     amap.forEach((value, key) => {
       if (key in modelCard) {
-        modelCard[key]["description"] = value.content;
+        const section = modelCard[key];
+        if (section && 'description' in section) {
+          section.description = value.content;
+        }
       }
     });
     updateData(() => modelCard);
     console.log(data);
     // Add tag for title field
     const titleKey = "modelname";
+    const modelnameSection = modelCard[titleKey];
     if (
-      modelCard[titleKey]["description"] !== undefined &&
+      modelnameSection &&
+      'description' in modelnameSection &&
+      modelnameSection.description !== undefined &&
       !amap.has(titleKey)
     ) {
-      const titleCell = notebook.model.cells.get(0).value;
-      titleCell.insert(0, `${startTag(titleKey)}\n`);
-      titleCell.insert(titleCell.text.length, `\n${endTag(titleKey)}`);
-      amap.set(titleKey, {
-        idx: 0,
-        content: modelCard[titleKey]["description"],
-      });
+      const titleCell = notebook.model?.cells.get(0)?.value;
+      if (titleCell) {
+        titleCell.insert(0, `${startTag(titleKey)}\n`);
+        titleCell.insert(titleCell.text.length, `\n${endTag(titleKey)}`);
+        amap.set(titleKey, {
+          idx: 0,
+          content: modelnameSection.description,
+        });
+      }
     }
     updateAnnotMap(() => amap);
-  }, [notebook]);
+  }, [notebook, ServerResponse, data, updateAnnotMap, updateData]);
 
 
   // TODO let user decide the name of the output file
@@ -239,16 +223,22 @@ const Section: React.FC<ISectionProps> = ({
                       fileName = fileName.split(" ").join("_");
                       fileName = "card_" + fileName + ".md";
                       const filePath = PathExt.join(dirname, fileName);
-                      let mdFile: any = docManager.findWidget(filePath, "Editor");
+                      let mdFile = docManager.findWidget(filePath, "Editor");
                       if (mdFile === undefined) {
                         // create the file in the same directory as the notebook
                         mdFile = docManager.createNew(filePath, "Editor");
                       }
-                      mdFile.context.ready.then(() => {
-                        mdFile.content.model.value.text = generateMarkdown(data);
-                      });
-                      mdFile.close();
-                      docManager.openOrReveal(filePath, 'Markdown Preview');
+                      if (mdFile) {
+                        void mdFile.context.ready.then(() => {
+                          // Access the editor content - this is specific to JupyterLab's editor widget
+                          const editorWidget = mdFile as any;
+                          if (editorWidget.content?.model?.value) {
+                            editorWidget.content.model.value.text = generateMarkdown(data);
+                          }
+                        });
+                        mdFile.close();
+                      }
+                      void docManager.openOrReveal(filePath, 'Markdown Preview');
                     },
                   });
                 } else {
@@ -258,14 +248,20 @@ const Section: React.FC<ISectionProps> = ({
                   fileName = fileName.split(" ").join("_");
                   fileName = "card_" + fileName + ".md";
                   const filePath = PathExt.join(dirname, fileName);
-                  let mdFile: any = docManager.findWidget(filePath, "Editor");
+                  let mdFile = docManager.findWidget(filePath, "Editor");
                   if (mdFile === undefined) {
                     mdFile = docManager.createNew(filePath, "Editor");
-                  } 
-                  mdFile.context.ready.then(() => {
-                    mdFile.content.model.value.text = generateMarkdown(data);
-                  });
-                  docManager.openOrReveal(filePath, 'Markdown Preview');
+                  }
+                  if (mdFile) {
+                    void mdFile.context.ready.then(() => {
+                      // Access the editor content - this is specific to JupyterLab's editor widget
+                      const editorWidget = mdFile as any;
+                      if (editorWidget.content?.model?.value) {
+                        editorWidget.content.model.value.text = generateMarkdown(data);
+                      }
+                    });
+                  }
+                  void docManager.openOrReveal(filePath, 'Markdown Preview');
                 }
               }}
             >
