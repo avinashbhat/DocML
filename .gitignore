@@ -1,1 +1,39 @@
+# macOS
 .DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+*.modelcard.json
+
+# Examples directory (test notebooks)
+examples/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+*.tsbuildinfo
+lib/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
