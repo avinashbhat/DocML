@@ -22,6 +22,8 @@ export const useModelCardExport = (
     fileName = "card_" + fileName + ".md";
     const filePath = PathExt.join(dirname, fileName);
 
+    const markdownContent = generateMarkdown(data);
+
     let mdFile = docManager.findWidget(filePath, "Editor") as any;
     if (mdFile === undefined) {
       mdFile = docManager.createNew(filePath, "Editor") as any;
@@ -29,9 +31,36 @@ export const useModelCardExport = (
 
     if (mdFile && mdFile.context) {
       void mdFile.context.ready.then(() => {
-        // Access the editor content - this is specific to JupyterLab's editor widget
-        if (mdFile.content?.model?.value) {
-          mdFile.content.model.value.text = generateMarkdown(data);
+        try {
+          // Try multiple APIs for JupyterLab 4.x compatibility
+          const model = mdFile.content?.model;
+
+          if (!model) {
+            console.error('Export failed: Model not found');
+            return;
+          }
+
+          // JupyterLab 4.x: Try sharedModel first
+          if ((model as any).sharedModel && typeof (model as any).sharedModel.setSource === 'function') {
+            (model as any).sharedModel.setSource(markdownContent);
+          }
+          // JupyterLab 3.x/4.x: Try value.text
+          else if (model.value && typeof model.value.insert === 'function') {
+            // Clear existing content first
+            if (model.value.text && model.value.text.length > 0) {
+              model.value.remove(0, model.value.text.length);
+            }
+            model.value.insert(0, markdownContent);
+          }
+          // Fallback: Try direct assignment
+          else if (model.value) {
+            model.value.text = markdownContent;
+          }
+          else {
+            console.error('Export failed: Unable to set content - no compatible API found');
+          }
+        } catch (error) {
+          console.error('Export error:', error);
         }
       });
     }

@@ -1,8 +1,8 @@
 export const modelCardExtensionID = 'model-card-extension';
 export const modelCardWidgetID = 'model-card-extension:widget';
 export const modelCardNotebookId = 'model-card-extension:notebook';
-export const extensionCategory = 'Model Card';
-export const extensionCaption = 'Model Card';
+export const extensionCategory = 'DocML';
+export const extensionCaption = 'DocML';
 export const createModelCard = 'create-model-card';
 export const commandShowModelCard = 'show-model-card';
 export const commandModifyStage = 'modify-model-card-stage';

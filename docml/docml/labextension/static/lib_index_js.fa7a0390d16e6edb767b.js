@@ -1,6 +1,258 @@
 "use strict";
 (self["webpackChunkdocml"] = self["webpackChunkdocml"] || []).push([["lib_index_js"],{
 
+/***/ "./lib/components/ConfigEditor.js":
+/*!****************************************!*\
+  !*** ./lib/components/ConfigEditor.js ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   ConfigEditor: () => (/* binding */ ConfigEditor)
+/* harmony export */ });
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/DeleteOutlined.js");
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/PlusOutlined.js");
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/SaveOutlined.js");
+/* harmony import */ var antd__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! antd */ "webpack/sharing/consume/default/antd/antd");
+/* harmony import */ var antd__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(antd__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "webpack/sharing/consume/default/react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+/**
+ * Component for editing modelcard.config sections
+ */
+const ConfigEditor = ({ visible, onClose, notebookPath, onSave, initialSections }) => {
+    const [sections, setSections] = (0,react__WEBPACK_IMPORTED_MODULE_4__.useState)(initialSections);
+    const [loading, setLoading] = (0,react__WEBPACK_IMPORTED_MODULE_4__.useState)(false);
+    const handleAddSection = (0,react__WEBPACK_IMPORTED_MODULE_4__.useCallback)(() => {
+        setSections([...sections, { section: 'New Section', description: '', example: [] }]);
+    }, [sections]);
+    const handleRemoveSection = (0,react__WEBPACK_IMPORTED_MODULE_4__.useCallback)((index) => {
+        setSections(sections.filter((_, i) => i !== index));
+    }, [sections]);
+    const handleFieldChange = (0,react__WEBPACK_IMPORTED_MODULE_4__.useCallback)((index, field, value) => {
+        const newSections = [...sections];
+        if (field === 'example') {
+            newSections[index][field] = value ? [value] : [];
+        }
+        else {
+            newSections[index][field] = value;
+        }
+        setSections(newSections);
+    }, [sections]);
+    const handleSave = (0,react__WEBPACK_IMPORTED_MODULE_4__.useCallback)(async () => {
+        setLoading(true);
+        try {
+            await onSave(sections);
+            antd__WEBPACK_IMPORTED_MODULE_3__.message.success('Configuration saved successfully! Refresh to see changes.');
+            onClose();
+        }
+        catch (error) {
+            antd__WEBPACK_IMPORTED_MODULE_3__.message.error('Failed to save configuration');
+            console.error('Save error:', error);
+        }
+        finally {
+            setLoading(false);
+        }
+    }, [sections, onSave, onClose]);
+    const columns = [
+        {
+            title: 'Section Name',
+            dataIndex: 'section',
+            key: 'section',
+            width: '30%',
+            render: (text, record, index) => (react__WEBPACK_IMPORTED_MODULE_4___default().createElement("div", { style: { display: 'flex', gap: '8px', alignItems: 'center' } },
+                react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Input, { value: text, onChange: (e) => handleFieldChange(index, 'section', e.target.value), placeholder: "e.g., Data Cleaning, Model Training" }),
+                react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Button, { type: "text", danger: true, size: "small", icon: react__WEBPACK_IMPORTED_MODULE_4___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_0__["default"], null), onClick: () => handleRemoveSection(index), title: "Delete section" }))),
+        },
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            width: '40%',
+            render: (text, record, index) => (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Input.TextArea, { value: text, onChange: (e) => handleFieldChange(index, 'description', e.target.value), placeholder: "Describe what this section should contain", rows: 2, autoSize: { minRows: 2, maxRows: 4 } })),
+        },
+        {
+            title: 'Example URL',
+            dataIndex: 'example',
+            key: 'example',
+            width: '30%',
+            render: (examples, record, index) => (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Input, { value: examples[0] || '', onChange: (e) => handleFieldChange(index, 'example', e.target.value), placeholder: "https://example.com" })),
+        },
+    ];
+    const dataSource = sections.map((section, index) => ({
+        ...section,
+        key: index,
+    }));
+    return (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Modal, { title: "Configure DocML Sections", open: visible, onCancel: onClose, width: 1000, footer: [
+            react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Button, { key: "cancel", onClick: onClose }, "Cancel"),
+            react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Button, { key: "add", type: "dashed", icon: react__WEBPACK_IMPORTED_MODULE_4___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_1__["default"], null), onClick: handleAddSection }, "Add Section"),
+            react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Button, { key: "save", type: "primary", icon: react__WEBPACK_IMPORTED_MODULE_4___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_2__["default"], null), loading: loading, onClick: handleSave }, "Save Configuration"),
+        ] },
+        react__WEBPACK_IMPORTED_MODULE_4___default().createElement("div", { style: { marginBottom: 16 } },
+            react__WEBPACK_IMPORTED_MODULE_4___default().createElement("p", null,
+                "Configure sections for your DocML documentation. Changes will be saved to ",
+                react__WEBPACK_IMPORTED_MODULE_4___default().createElement("code", null, "modelcard.config"),
+                ".")),
+        react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_3__.Table, { columns: columns, dataSource: dataSource, pagination: false, bordered: true, size: "small", scroll: { y: 400 } })));
+};
+
+
+/***/ }),
+
+/***/ "./lib/components/DocMLDropdown.js":
+/*!*****************************************!*\
+  !*** ./lib/components/DocMLDropdown.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   DocMLDropdown: () => (/* binding */ DocMLDropdown)
+/* harmony export */ });
+/* harmony import */ var _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @jupyterlab/apputils */ "webpack/sharing/consume/default/@jupyterlab/apputils");
+/* harmony import */ var _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var antd__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! antd */ "webpack/sharing/consume/default/antd/antd");
+/* harmony import */ var antd__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(antd__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/DownOutlined.js");
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/FileTextOutlined.js");
+/* harmony import */ var _ant_design_icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @ant-design/icons */ "./node_modules/@ant-design/icons/es/icons/SettingOutlined.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react */ "webpack/sharing/consume/default/react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var react_dom_client__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! react-dom/client */ "./node_modules/react-dom/client.js");
+/* harmony import */ var _ConfigEditor__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./ConfigEditor */ "./lib/components/ConfigEditor.js");
+
+
+
+
+
+
+/**
+ * React component for the DocML dropdown button
+ */
+const DocMLDropdownContent = ({ onCreateModelCard, onOpenConfig }) => {
+    const menuItems = [
+        {
+            key: 'create',
+            label: 'Create',
+            icon: react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_3__["default"], null),
+            onClick: onCreateModelCard,
+        },
+        {
+            key: 'config',
+            label: 'Config',
+            icon: react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_4__["default"], null),
+            onClick: onOpenConfig,
+        },
+    ];
+    return (react__WEBPACK_IMPORTED_MODULE_5___default().createElement(antd__WEBPACK_IMPORTED_MODULE_1__.Dropdown, { menu: { items: menuItems }, trigger: ['click'] },
+        react__WEBPACK_IMPORTED_MODULE_5___default().createElement(antd__WEBPACK_IMPORTED_MODULE_1__.Button, { size: "small", type: "text", style: {
+                padding: '0 8px',
+                height: '24px',
+                fontSize: '13px',
+                fontFamily: 'var(--jp-ui-font-family)',
+                color: 'var(--jp-ui-font-color1)',
+                border: 'none',
+            }, className: "jp-ToolbarButtonComponent" },
+            "DocML ",
+            react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_2__["default"], { style: { fontSize: '10px', marginLeft: '2px' } }))));
+};
+/**
+ * ReactWidget for the DocML dropdown toolbar button
+ */
+class DocMLDropdown extends _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_0__.ReactWidget {
+    constructor(panel, context, onCreateModelCard) {
+        super();
+        this._root = null;
+        this._modalVisible = false;
+        /**
+         * Handle opening the config modal
+         */
+        this.handleOpenConfig = () => {
+            this._modalVisible = true;
+            this.update();
+        };
+        /**
+         * Handle closing the config modal
+         */
+        this.handleCloseConfig = () => {
+            this._modalVisible = false;
+            this.update();
+        };
+        this._panel = panel;
+        this._context = context;
+        this._onCreateModelCard = onCreateModelCard;
+        this.addClass('jp-docml-dropdown-button');
+    }
+    /**
+     * Render the dropdown button
+     */
+    render() {
+        return (react__WEBPACK_IMPORTED_MODULE_5___default().createElement("div", null,
+            react__WEBPACK_IMPORTED_MODULE_5___default().createElement(DocMLDropdownContent, { panel: this._panel, onCreateModelCard: this._onCreateModelCard, onOpenConfig: this.handleOpenConfig }),
+            this._modalVisible && (react__WEBPACK_IMPORTED_MODULE_5___default().createElement(ConfigEditorModal, { notebookPath: this._context.path, visible: this._modalVisible, onClose: this.handleCloseConfig }))));
+    }
+    /**
+     * Update the widget
+     */
+    onUpdateRequest() {
+        if (!this._root) {
+            this._root = (0,react_dom_client__WEBPACK_IMPORTED_MODULE_6__.createRoot)(this.node);
+        }
+        this._root.render(this.render());
+    }
+}
+const ConfigEditorModal = ({ notebookPath, visible, onClose }) => {
+    const [initialSections, setInitialSections] = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)([]);
+    const [loading, setLoading] = (0,react__WEBPACK_IMPORTED_MODULE_5__.useState)(true);
+    const loadConfig = (0,react__WEBPACK_IMPORTED_MODULE_5__.useCallback)(async () => {
+        try {
+            setLoading(true);
+            const { requestAPI } = await Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../handler */ "./lib/handler.js"));
+            const response = await requestAPI('config?path=' + encodeURIComponent(notebookPath), {
+                method: 'GET'
+            });
+            // If no sections exist, start with an empty array
+            setInitialSections(response.sections || []);
+        }
+        catch (error) {
+            console.error('Failed to load config:', error);
+            // On error, start with empty sections
+            setInitialSections([]);
+        }
+        finally {
+            setLoading(false);
+        }
+    }, [notebookPath]);
+    // Load existing config when modal opens
+    react__WEBPACK_IMPORTED_MODULE_5___default().useEffect(() => {
+        if (visible) {
+            loadConfig();
+        }
+    }, [visible, loadConfig]);
+    const saveConfig = (0,react__WEBPACK_IMPORTED_MODULE_5__.useCallback)(async (sections) => {
+        const { requestAPI } = await Promise.resolve(/*! import() */).then(__webpack_require__.bind(__webpack_require__, /*! ../handler */ "./lib/handler.js"));
+        await requestAPI('config', {
+            body: JSON.stringify({
+                path: notebookPath,
+                config: { sections }
+            }),
+            method: 'POST'
+        });
+    }, [notebookPath]);
+    // Don't render until config is loaded
+    if (loading) {
+        return null;
+    }
+    return (react__WEBPACK_IMPORTED_MODULE_5___default().createElement(_ConfigEditor__WEBPACK_IMPORTED_MODULE_7__.ConfigEditor, { visible: visible, onClose: onClose, notebookPath: notebookPath, onSave: saveConfig, initialSections: initialSections }));
+};
+
+
+/***/ }),
+
 /***/ "./lib/components/ExportButton.js":
 /*!****************************************!*\
   !*** ./lib/components/ExportButton.js ***!
@@ -184,23 +436,21 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash_clone__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash_clone__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "webpack/sharing/consume/default/react");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _constants__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../constants */ "./lib/constants.js");
-
 
 
 
 
 
 /**
- * Pattern to match model card stage comments in notebook cells
- * Format: # [model card] stage: <stage name>
+ * Pattern to match DocML stage comments in notebook cells
+ * Format: # [docml] stage: <stage name>
  * TODO: Improve regex pattern for better fuzzy matching
  */
-const STAGE_PATTERN = /(\[model card\] stage: )[\w ]*(.*)/;
+const STAGE_PATTERN = /(\[docml\] stage: )[\w ]*(.*)/;
 /**
- * Dropdown component for selecting model card stages
+ * Dropdown component for selecting DocML stages
  */
-const StageDropdown = react__WEBPACK_IMPORTED_MODULE_4___default().memo(({ notebook }) => {
+const StageDropdown = react__WEBPACK_IMPORTED_MODULE_4___default().memo(({ notebook, sections }) => {
     const handleStageSelect = (0,react__WEBPACK_IMPORTED_MODULE_4__.useCallback)((stageId, stageName) => {
         if (!notebook.activeCell) {
             console.warn('No active cell');
@@ -221,12 +471,16 @@ const StageDropdown = react__WEBPACK_IMPORTED_MODULE_4___default().memo(({ noteb
             }
             else {
                 // Add new stage comment
-                cellModel.value.insert(0, `# [model card] stage: ${stageName}\n`);
+                cellModel.value.insert(0, `# [docml] stage: ${stageName}\n`);
             }
         }
     }, [notebook]);
-    const menu = (0,react__WEBPACK_IMPORTED_MODULE_4__.useMemo)(() => (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_2__.Menu, null, Array.from(_constants__WEBPACK_IMPORTED_MODULE_5__.stages.entries()).map(([stageId, stageName], idx) => (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_2__.Menu.Item, { key: idx, onClick: () => handleStageSelect(stageId, stageName) }, stageName))))), [handleStageSelect]);
-    return (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_2__.Dropdown, { overlay: menu },
+    const menuItems = (0,react__WEBPACK_IMPORTED_MODULE_4__.useMemo)(() => Array.from(sections.entries()).map(([stageId, stageName], idx) => ({
+        key: idx.toString(),
+        label: stageName,
+        onClick: () => handleStageSelect(stageId, stageName)
+    })), [handleStageSelect, sections]);
+    return (react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_2__.Dropdown, { menu: { items: menuItems } },
         react__WEBPACK_IMPORTED_MODULE_4___default().createElement(antd__WEBPACK_IMPORTED_MODULE_2__.Button, null,
             "Select stage ",
             react__WEBPACK_IMPORTED_MODULE_4___default().createElement(_ant_design_icons__WEBPACK_IMPORTED_MODULE_0__["default"], null))));
@@ -237,21 +491,44 @@ StageDropdown.displayName = 'StageDropdown';
  * Used in JupyterLab's popup system
  */
 class PopupWidget extends _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ReactWidget {
-    constructor(panel) {
+    constructor(panel, serverResponse) {
         super();
         this._notebook = panel.content;
+        this._sections = this._extractSections(serverResponse);
     }
     /**
-     * Update the notebook reference
+     * Extract sections from server response to populate dropdown
      */
-    updateModel(panel) {
+    _extractSections(serverResponse) {
+        const sections = new Map();
+        if (!serverResponse) {
+            return sections;
+        }
+        // Extract all sections from the model card data
+        Object.entries(serverResponse).forEach(([key, value]) => {
+            // Skip special keys and ensure it's a section object
+            if (key !== 'modelname' && key !== 'miscellaneous' && value && typeof value === 'object' && 'title' in value) {
+                sections.set(key, value.title);
+            }
+        });
+        // Add miscellaneous/ignore option
+        sections.set('miscellaneous', 'Ignore');
+        return sections;
+    }
+    /**
+     * Update the notebook reference and sections
+     */
+    updateModel(panel, serverResponse) {
         this._notebook = lodash_clone__WEBPACK_IMPORTED_MODULE_3___default()(panel.content);
+        if (serverResponse) {
+            this._sections = this._extractSections(serverResponse);
+        }
     }
     /**
      * Render the stage dropdown component
      */
     render() {
-        return react__WEBPACK_IMPORTED_MODULE_4___default().createElement(StageDropdown, { notebook: this._notebook });
+        return react__WEBPACK_IMPORTED_MODULE_4___default().createElement(StageDropdown, { notebook: this._notebook, sections: this._sections });
     }
 }
 
@@ -305,9 +582,30 @@ const QuickFix = react__WEBPACK_IMPORTED_MODULE_3___default().memo(({ sectionNam
             console.error('Notebook model not initialized');
             return;
         }
-        const mdCell = new _jupyterlab_cells__WEBPACK_IMPORTED_MODULE_1__.MarkdownCellModel();
-        mdCell.value.text = generateAnnotationContent(sectionName, sectionTitle);
-        notebook.model.cells.insert(idx, mdCell);
+        const content = generateAnnotationContent(sectionName, sectionTitle);
+        // JupyterLab 4.x API: Use sharedModel.insertCell with plain cell data
+        if (notebook.model.sharedModel && typeof notebook.model.sharedModel.insertCell === 'function') {
+            // Create plain cell data object for JupyterLab 4.x
+            const cellData = {
+                cell_type: 'markdown',
+                source: content,
+                metadata: {}
+            };
+            notebook.model.sharedModel.insertCell(idx, cellData);
+        }
+        // Fallback for JupyterLab 3.x: Use model.cells.insert
+        else if (notebook.model.cells.insert && typeof notebook.model.cells.insert === 'function') {
+            const mdCell = new _jupyterlab_cells__WEBPACK_IMPORTED_MODULE_1__.MarkdownCellModel();
+            notebook.model.cells.insert(idx, mdCell);
+            // Set content after insertion
+            if (mdCell.value && typeof mdCell.value.insert === 'function') {
+                mdCell.value.insert(0, content);
+            }
+        }
+        else {
+            console.error('Unable to insert cell - no compatible API found');
+            return;
+        }
         updateAnnotMap(draft => {
             draft.set(sectionName, { idx, content: '' });
         });
@@ -379,20 +677,20 @@ const Bar = (styled_components__WEBPACK_IMPORTED_MODULE_4___default().div) `
   position: relative;
   background: aliceblue;
   width: 40%;
-  height: 40px;
-  border-radius: 10px;
+  height: 20px;
+  border-radius: 5px;
 `;
 const VerticalLine = (styled_components__WEBPACK_IMPORTED_MODULE_4___default().div) `
   position: absolute;
   left: ${(props) => props.left}%;
   height: 100%;
-  width: 5px;
+  width: 2px;
   background-color: lightskyblue;
-  border-radius: 15px;
+  border-radius: 5px;
   transition: transform 0.2s, background-color 0.2s;
 
   &:hover {
-    transform: scale(3, 1.5);
+    transform: scale(2, 1.5);
     background-color: #1890ff;
     z-index: 2;
     cursor: pointer;
@@ -479,8 +777,8 @@ __webpack_require__.r(__webpack_exports__);
 const modelCardExtensionID = 'model-card-extension';
 const modelCardWidgetID = 'model-card-extension:widget';
 const modelCardNotebookId = 'model-card-extension:notebook';
-const extensionCategory = 'Model Card';
-const extensionCaption = 'Model Card';
+const extensionCategory = 'DocML';
+const extensionCaption = 'DocML';
 const createModelCard = 'create-model-card';
 const commandShowModelCard = 'show-model-card';
 const commandModifyStage = 'modify-model-card-stage';
@@ -644,15 +942,42 @@ const useModelCardExport = (context, docManager, data) => {
         fileName = fileName.split(" ").join("_");
         fileName = "card_" + fileName + ".md";
         const filePath = _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_0__.PathExt.join(dirname, fileName);
+        const markdownContent = (0,_util__WEBPACK_IMPORTED_MODULE_2__.generateMarkdown)(data);
         let mdFile = docManager.findWidget(filePath, "Editor");
         if (mdFile === undefined) {
             mdFile = docManager.createNew(filePath, "Editor");
         }
         if (mdFile && mdFile.context) {
             void mdFile.context.ready.then(() => {
-                // Access the editor content - this is specific to JupyterLab's editor widget
-                if (mdFile.content?.model?.value) {
-                    mdFile.content.model.value.text = (0,_util__WEBPACK_IMPORTED_MODULE_2__.generateMarkdown)(data);
+                try {
+                    // Try multiple APIs for JupyterLab 4.x compatibility
+                    const model = mdFile.content?.model;
+                    if (!model) {
+                        console.error('Export failed: Model not found');
+                        return;
+                    }
+                    // JupyterLab 4.x: Try sharedModel first
+                    if (model.sharedModel && typeof model.sharedModel.setSource === 'function') {
+                        model.sharedModel.setSource(markdownContent);
+                    }
+                    // JupyterLab 3.x/4.x: Try value.text
+                    else if (model.value && typeof model.value.insert === 'function') {
+                        // Clear existing content first
+                        if (model.value.text && model.value.text.length > 0) {
+                            model.value.remove(0, model.value.text.length);
+                        }
+                        model.value.insert(0, markdownContent);
+                    }
+                    // Fallback: Try direct assignment
+                    else if (model.value) {
+                        model.value.text = markdownContent;
+                    }
+                    else {
+                        console.error('Export failed: Unable to set content - no compatible API found');
+                    }
+                }
+                catch (error) {
+                    console.error('Export error:', error);
                 }
             });
         }
@@ -703,6 +1028,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _panel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./panel */ "./lib/panel.js");
 /* harmony import */ var _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @jupyterlab/coreutils */ "webpack/sharing/consume/default/@jupyterlab/coreutils");
 /* harmony import */ var _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _components_DocMLDropdown__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/DocMLDropdown */ "./lib/components/DocMLDropdown.js");
+
 
 
 
@@ -719,7 +1046,7 @@ function makeid(length) {
     return result;
 }
 /**
- * A notebook widget extension that adds a jupyterlab classic button to the toolbar.
+ * A notebook widget extension that adds a DocML dropdown button to the toolbar.
  */
 class ModelCardButton {
     constructor(app, docManager) {
@@ -727,100 +1054,97 @@ class ModelCardButton {
         this._docManager = docManager;
     }
     /**
+     * Register the context menu command for changing stages
+     */
+    registerStageCommand() {
+        if (!this._app.commands.hasCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage)) {
+            this._app.commands.addCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage, {
+                label: "[DocML] Change stage to...",
+                execute: () => {
+                    this._modelCardPanel?.launchPanel();
+                },
+            });
+            this._app.contextMenu.addItem({
+                command: _constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage,
+                selector: ".jp-CodeCell",
+            });
+        }
+    }
+    /**
+     * Create and configure a new ModelCardPanel
+     */
+    createModelCardPanel(panel, modelCardTitle, createPanel) {
+        const modelCardPanel = new _panel__WEBPACK_IMPORTED_MODULE_4__.ModelCardPanel(this._app, this._docManager, makeid(10), modelCardTitle, createPanel);
+        modelCardPanel.setContext(this._context);
+        modelCardPanel.setPanel(panel);
+        this.registerStageCommand();
+        this._app.docRegistry.addWidgetExtension("Notebook", modelCardPanel);
+        return modelCardPanel;
+    }
+    /**
+     * Show the model card panel in the shell
+     */
+    showPanel(modelCardPanel) {
+        this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
+        this._app.shell.activateById(modelCardPanel.id);
+        modelCardPanel.update();
+    }
+    /**
+     * Update panel context and refresh
+     */
+    updatePanelContext(modelCardPanel, panel) {
+        modelCardPanel.setContext(this._context);
+        modelCardPanel.setPanel(panel);
+        modelCardPanel.update();
+    }
+    /**
      * Create a new extension object.
      */
     createNew(panel, context) {
         let modelCardPanel;
-        function popUpLauncher(modelCardPanel) {
-            modelCardPanel.launchPanel();
-        }
         const createPanel = () => {
             context.ready.then(() => {
                 this._context = context;
+                // Generate model card title from notebook path
                 let modelCardTitle = _jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_5__.PathExt.basename(context.path);
                 modelCardTitle = modelCardTitle.split(_jupyterlab_coreutils__WEBPACK_IMPORTED_MODULE_5__.PathExt.extname(modelCardTitle))[0];
-                modelCardTitle = modelCardTitle.split(" ").join("_");
-                modelCardTitle = modelCardTitle + ".modelcard";
+                modelCardTitle = modelCardTitle.split(" ").join("_") + ".modelcard";
+                // Handle different panel states
                 if (!modelCardPanel) {
-                    modelCardPanel = new _panel__WEBPACK_IMPORTED_MODULE_4__.ModelCardPanel(this._app, this._docManager, makeid(10), modelCardTitle, createPanel);
-                    modelCardPanel.setContext(this._context);
-                    modelCardPanel.setPanel(panel);
+                    // Create new panel
+                    modelCardPanel = this.createModelCardPanel(panel, modelCardTitle, createPanel);
                     this._modelCardPanel = modelCardPanel;
-                    if (!this._app.commands.hasCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage)) {
-                        this._app.commands.addCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage, {
-                            label: "[Model Card] Change stage to...",
-                            execute: () => {
-                                popUpLauncher(this._modelCardPanel);
-                            },
-                        });
-                        this._app.contextMenu.addItem({
-                            command: _constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage,
-                            selector: ".jp-CodeCell",
-                        });
-                    }
-                    this._app.docRegistry.addWidgetExtension("Notebook", modelCardPanel);
-                    this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
-                    this._app.shell.activateById(modelCardPanel.id);
-                    modelCardPanel.update();
+                    this.showPanel(modelCardPanel);
                 }
-                else if (modelCardPanel && !modelCardPanel.isAttached) {
-                    modelCardPanel.setContext(this._context);
-                    modelCardPanel.setPanel(panel);
-                    this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
-                    this._app.shell.activateById(modelCardPanel.id);
+                else if (!modelCardPanel.isAttached) {
+                    // Reattach detached panel
+                    this.updatePanelContext(modelCardPanel, panel);
                     this._modelCardPanel = modelCardPanel;
-                    modelCardPanel.update();
+                    this.showPanel(modelCardPanel);
                 }
-                else if (modelCardPanel && !modelCardPanel.isVisible) {
-                    modelCardPanel.setContext(this._context);
-                    modelCardPanel.setPanel(panel);
-                    this._app.shell.activateById(modelCardPanel.id);
+                else if (!modelCardPanel.isVisible) {
+                    // Show hidden panel
+                    this.updatePanelContext(modelCardPanel, panel);
                     this._modelCardPanel = modelCardPanel;
-                    modelCardPanel.update();
+                    this._app.shell.activateById(modelCardPanel.id);
                 }
-                else if (modelCardPanel) {
-                    if (this._app.shell.currentWidget === modelCardPanel) {
-                        this._app.shell.currentWidget.dispose();
-                        modelCardPanel = new _panel__WEBPACK_IMPORTED_MODULE_4__.ModelCardPanel(this._app, this._docManager, makeid(10), modelCardTitle, createPanel);
-                        modelCardPanel.setContext(this._context);
-                        modelCardPanel.setPanel(panel);
-                        this._modelCardPanel = modelCardPanel;
-                        if (!this._app.commands.hasCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage)) {
-                            this._app.commands.addCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage, {
-                                label: "[Model Card] Change stage to...",
-                                execute: () => {
-                                    popUpLauncher(this._modelCardPanel);
-                                },
-                            });
-                            this._app.contextMenu.addItem({
-                                command: _constants__WEBPACK_IMPORTED_MODULE_3__.commandModifyStage,
-                                selector: ".jp-CodeCell",
-                            });
-                        }
-                        this._app.docRegistry.addWidgetExtension("Notebook", modelCardPanel);
-                        this._app.shell.add(modelCardPanel, "main", {
-                            mode: "split-right",
-                        });
-                        this._app.shell.activateById(modelCardPanel.id);
-                        modelCardPanel.update();
-                    }
-                    else {
-                        modelCardPanel.setContext(this._context);
-                        modelCardPanel.setPanel(panel);
-                        modelCardPanel.update();
-                    }
+                else if (this._app.shell.currentWidget === modelCardPanel) {
+                    // Recreate panel if it's the current widget (toggle behavior)
+                    this._app.shell.currentWidget.dispose();
+                    modelCardPanel = this.createModelCardPanel(panel, modelCardTitle, createPanel);
+                    this._modelCardPanel = modelCardPanel;
+                    this.showPanel(modelCardPanel);
+                }
+                else {
+                    // Update existing visible panel
+                    this.updatePanelContext(modelCardPanel, panel);
                 }
             });
         };
-        const button = new _jupyterlab_apputils__WEBPACK_IMPORTED_MODULE_1__.ToolbarButton({
-            tooltip: "Generate model card",
-            className: "myButton",
-            onClick: () => {
-                createPanel();
-            },
-            label: "Model Card",
-        });
-        panel.toolbar.insertItem(0, "jupyterlabClassic", button);
+        // Add DocML dropdown button
+        const dropdownButton = new _components_DocMLDropdown__WEBPACK_IMPORTED_MODULE_6__.DocMLDropdown(panel, context, createPanel);
+        dropdownButton.update();
+        panel.toolbar.insertItem(0, "docmlDropdown", dropdownButton);
         if (!this._app.commands.hasCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.createModelCard)) {
             this._app.commands.addCommand(_constants__WEBPACK_IMPORTED_MODULE_3__.createModelCard, {
                 label: _constants__WEBPACK_IMPORTED_MODULE_3__.extensionCategory,
@@ -829,7 +1153,7 @@ class ModelCardButton {
                 execute: createPanel,
             });
         }
-        return button;
+        return dropdownButton;
     }
 }
 /**
@@ -889,6 +1213,7 @@ class ModelCardPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_2__.Stacke
         this._popup = null;
         this._panel = null;
         this._context = null;
+        this._serverResponse = null;
         this._app = app;
         this._docManager = docManager;
         this.id = modelCardId;
@@ -941,11 +1266,12 @@ class ModelCardPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_2__.Stacke
         }
         try {
             const reply = await this.getData(path);
+            this._serverResponse = reply;
             this._view = new _components_ModelCardWidget__WEBPACK_IMPORTED_MODULE_3__.ModelCardWidget(this._panel, this._docManager, reply, this._createPanelHandler);
             this._view.updateModel(this._panel);
             this._view.update();
-            this._popup = new _components_PopupWidget__WEBPACK_IMPORTED_MODULE_4__.PopupWidget(this._panel);
-            this._popup.updateModel(this._panel);
+            this._popup = new _components_PopupWidget__WEBPACK_IMPORTED_MODULE_4__.PopupWidget(this._panel, reply);
+            this._popup.updateModel(this._panel, reply);
         }
         catch (error) {
             console.error('Failed to update view:', error);
@@ -961,7 +1287,7 @@ class ModelCardPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_2__.Stacke
             console.warn('No active cell');
             return;
         }
-        this._popup.updateModel(this._panel);
+        this._popup.updateModel(this._panel, this._serverResponse || undefined);
         const popup = new _jupyterlab_statusbar__WEBPACK_IMPORTED_MODULE_0__.Popup({
             body: this._popup,
             anchor: activeCell,
@@ -976,11 +1302,12 @@ class ModelCardPanel extends _lumino_widgets__WEBPACK_IMPORTED_MODULE_2__.Stacke
         }
         try {
             const reply = await this.getData(path);
+            this._serverResponse = reply;
             this._view = new _components_ModelCardWidget__WEBPACK_IMPORTED_MODULE_3__.ModelCardWidget(this._panel, this._docManager, reply, this._createPanelHandler);
             this.addWidget(this._view);
-            this._popup = new _components_PopupWidget__WEBPACK_IMPORTED_MODULE_4__.PopupWidget(this._panel);
+            this._popup = new _components_PopupWidget__WEBPACK_IMPORTED_MODULE_4__.PopupWidget(this._panel, reply);
             this._view.updateModel(this._panel);
-            this._popup.updateModel(this._panel);
+            this._popup.updateModel(this._panel, reply);
         }
         catch (error) {
             console.error('Failed to create view:', error);
@@ -1171,4 +1498,4 @@ const jumpToCell = (notebook, idx) => {
 /***/ })
 
 }]);
-//# sourceMappingURL=lib_index_js.e4c8596d3d3582d9d3b1.js.map
+//# sourceMappingURL=lib_index_js.fa7a0390d16e6edb767b.js.map

@@ -56,10 +56,31 @@ const QuickFix: React.FC<IQuickFixProps> = React.memo(({
       return;
     }
 
-    const mdCell = new MarkdownCellModel();
-    (mdCell as any).value.text = generateAnnotationContent(sectionName, sectionTitle);
+    const content = generateAnnotationContent(sectionName, sectionTitle);
 
-    (notebook.model.cells as any).insert(idx, mdCell);
+    // JupyterLab 4.x API: Use sharedModel.insertCell with plain cell data
+    if ((notebook.model as any).sharedModel && typeof (notebook.model as any).sharedModel.insertCell === 'function') {
+      // Create plain cell data object for JupyterLab 4.x
+      const cellData = {
+        cell_type: 'markdown',
+        source: content,
+        metadata: {}
+      };
+      (notebook.model as any).sharedModel.insertCell(idx, cellData);
+    }
+    // Fallback for JupyterLab 3.x: Use model.cells.insert
+    else if ((notebook.model.cells as any).insert && typeof (notebook.model.cells as any).insert === 'function') {
+      const mdCell = new MarkdownCellModel();
+      (notebook.model.cells as any).insert(idx, mdCell);
+      // Set content after insertion
+      if ((mdCell as any).value && typeof (mdCell as any).value.insert === 'function') {
+        (mdCell as any).value.insert(0, content);
+      }
+    }
+    else {
+      console.error('Unable to insert cell - no compatible API found');
+      return;
+    }
 
     updateAnnotMap(draft => {
       draft.set(sectionName, { idx, content: '' });

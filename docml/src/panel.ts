@@ -16,6 +16,7 @@ export class ModelCardPanel extends StackedPanel
   private _popup: PopupWidget | null = null;
   private _panel: NotebookPanel | null = null;
   private _context: DocumentRegistry.IContext<INotebookModel> | null = null;
+  private _serverResponse: IServerResponse | null = null;
   readonly _app: JupyterFrontEnd;
   readonly _docManager: IDocumentManager;
   private readonly _createPanelHandler: PanelCreateHandler;
@@ -87,6 +88,7 @@ export class ModelCardPanel extends StackedPanel
 
     try {
       const reply = await this.getData(path);
+      this._serverResponse = reply;
       this._view = new ModelCardWidget(
         this._panel,
         this._docManager,
@@ -95,8 +97,8 @@ export class ModelCardPanel extends StackedPanel
       );
       this._view.updateModel(this._panel);
       this._view.update();
-      this._popup = new PopupWidget(this._panel);
-      this._popup.updateModel(this._panel);
+      this._popup = new PopupWidget(this._panel, reply);
+      this._popup.updateModel(this._panel, reply);
     } catch (error) {
       console.error('Failed to update view:', error);
     }
@@ -114,7 +116,7 @@ export class ModelCardPanel extends StackedPanel
       return;
     }
 
-    this._popup.updateModel(this._panel);
+    this._popup.updateModel(this._panel, this._serverResponse || undefined);
     const popup = new Popup({
       body: this._popup,
       anchor: activeCell,
@@ -131,6 +133,7 @@ export class ModelCardPanel extends StackedPanel
 
     try {
       const reply = await this.getData(path);
+      this._serverResponse = reply;
       this._view = new ModelCardWidget(
         this._panel,
         this._docManager,
@@ -138,9 +141,9 @@ export class ModelCardPanel extends StackedPanel
         this._createPanelHandler
       );
       this.addWidget(this._view);
-      this._popup = new PopupWidget(this._panel);
+      this._popup = new PopupWidget(this._panel, reply);
       this._view.updateModel(this._panel);
-      this._popup.updateModel(this._panel);
+      this._popup.updateModel(this._panel, reply);
     } catch (error) {
       console.error('Failed to create view:', error);
     }

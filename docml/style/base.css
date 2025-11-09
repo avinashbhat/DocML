@@ -4,19 +4,40 @@
     align-items: center;
     overflow-x: auto;
   }
-  
+
   .myButton {
-    background: black;
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color1);
   }
-  
+
   .jp-Button.minimal {
     color: black;
   }
-  
+
   .jp-ReactWidget {
     color: var(--jp-ui-font-color1);
     background: var(--jp-layout-color1);
     padding: 20px;
     overflow: scroll;
+  }
+
+  /* DocML Dropdown Button Styling */
+  .jp-docml-dropdown-button {
+    display: flex;
+    align-items: center;
+  }
+
+  .jp-docml-dropdown-button .ant-btn {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .jp-docml-dropdown-button .ant-btn:hover {
+    background: var(--jp-layout-color2) !important;
+  }
+
+  .jp-docml-dropdown-button .ant-btn:active,
+  .jp-docml-dropdown-button .ant-btn:focus {
+    background: var(--jp-layout-color3) !important;
   }
   

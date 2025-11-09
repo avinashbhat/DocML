@@ -91,7 +91,7 @@
     "extension": true,
     "outputDir": "docml/labextension",
     "_build": {
-      "load": "static/remoteEntry.d0fb3bc8ef18a07a48c8.js",
+      "load": "static/remoteEntry.5cb67657f3b6701d0bf2.js",
       "extension": "./extension",
       "style": "./style"
     }

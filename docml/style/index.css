@@ -123,7 +123,8 @@
   }
   
   .myButton {
-    background: black;
+    background: var(--jp-layout-color2);
+    color: var(--jp-ui-font-color1);
   }
   
   .jp-Button.minimal {

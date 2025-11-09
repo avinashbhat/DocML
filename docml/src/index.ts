@@ -3,7 +3,7 @@ import {
   JupyterFrontEndPlugin,
   ILayoutRestorer,
 } from "@jupyterlab/application";
-import { ToolbarButton, WidgetTracker } from "@jupyterlab/apputils";
+import { WidgetTracker } from "@jupyterlab/apputils";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 import { NotebookPanel, INotebookModel } from "@jupyterlab/notebook";
 import { DocumentRegistry } from "@jupyterlab/docregistry";
@@ -17,6 +17,7 @@ import {
 } from "./constants";
 import { ModelCardPanel } from "./panel";
 import { PathExt } from "@jupyterlab/coreutils";
+import { DocMLDropdown } from "./components/DocMLDropdown";
 
 function makeid(length: number) {
   var result = "";
@@ -30,15 +31,10 @@ function makeid(length: number) {
 }
 
 /**
- * A notebook widget extension that adds a jupyterlab classic button to the toolbar.
+ * A notebook widget extension that adds a DocML dropdown button to the toolbar.
  */
 class ModelCardButton
   implements DocumentRegistry.IWidgetExtension<NotebookPanel, INotebookModel> {
-  /**
-   * Instantiate a new ClassicButton.
-   * @param _app The JupyterFrontEnd app.
-   * @param _modelCardPanel The model card object
-   */
   private _app: JupyterFrontEnd;
   private _docManager: IDocumentManager;
   private _modelCardPanel!: ModelCardPanel;
@@ -50,6 +46,66 @@ class ModelCardButton
   }
 
   /**
+   * Register the context menu command for changing stages
+   */
+  private registerStageCommand(): void {
+    if (!this._app.commands.hasCommand(commandModifyStage)) {
+      this._app.commands.addCommand(commandModifyStage, {
+        label: "[DocML] Change stage to...",
+        execute: () => {
+          this._modelCardPanel?.launchPanel();
+        },
+      });
+      this._app.contextMenu.addItem({
+        command: commandModifyStage,
+        selector: ".jp-CodeCell",
+      });
+    }
+  }
+
+  /**
+   * Create and configure a new ModelCardPanel
+   */
+  private createModelCardPanel(
+    panel: NotebookPanel,
+    modelCardTitle: string,
+    createPanel: () => void
+  ): ModelCardPanel {
+    const modelCardPanel = new ModelCardPanel(
+      this._app,
+      this._docManager,
+      makeid(10),
+      modelCardTitle,
+      createPanel
+    );
+
+    modelCardPanel.setContext(this._context);
+    modelCardPanel.setPanel(panel);
+    this.registerStageCommand();
+    this._app.docRegistry.addWidgetExtension("Notebook", modelCardPanel);
+
+    return modelCardPanel;
+  }
+
+  /**
+   * Show the model card panel in the shell
+   */
+  private showPanel(modelCardPanel: ModelCardPanel): void {
+    this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
+    this._app.shell.activateById(modelCardPanel.id);
+    modelCardPanel.update();
+  }
+
+  /**
+   * Update panel context and refresh
+   */
+  private updatePanelContext(modelCardPanel: ModelCardPanel, panel: NotebookPanel): void {
+    modelCardPanel.setContext(this._context);
+    modelCardPanel.setPanel(panel);
+    modelCardPanel.update();
+  }
+
+  /**
    * Create a new extension object.
    */
   createNew(
@@ -58,112 +114,49 @@ class ModelCardButton
   ): IDisposable {
     let modelCardPanel: ModelCardPanel;
 
-    function popUpLauncher(modelCardPanel: ModelCardPanel) {
-      modelCardPanel.launchPanel();
-    }
-
     const createPanel = () => {
       context.ready.then(() => {
         this._context = context;
+
+        // Generate model card title from notebook path
         let modelCardTitle = PathExt.basename(context.path);
-        modelCardTitle = modelCardTitle.split(
-          PathExt.extname(modelCardTitle)
-        )[0];
-        modelCardTitle = modelCardTitle.split(" ").join("_");
-        modelCardTitle = modelCardTitle + ".modelcard";
+        modelCardTitle = modelCardTitle.split(PathExt.extname(modelCardTitle))[0];
+        modelCardTitle = modelCardTitle.split(" ").join("_") + ".modelcard";
+
+        // Handle different panel states
         if (!modelCardPanel) {
-          modelCardPanel = new ModelCardPanel(
-            this._app,
-            this._docManager,
-            makeid(10),
-            modelCardTitle,
-            createPanel
-          );
-          modelCardPanel.setContext(this._context);
-          modelCardPanel.setPanel(panel);
+          // Create new panel
+          modelCardPanel = this.createModelCardPanel(panel, modelCardTitle, createPanel);
           this._modelCardPanel = modelCardPanel;
-          if (!this._app.commands.hasCommand(commandModifyStage)) {
-            this._app.commands.addCommand(commandModifyStage, {
-              label: "[Model Card] Change stage to...",
-              execute: () => {
-                popUpLauncher(this._modelCardPanel);
-              },
-            });
-            this._app.contextMenu.addItem({
-              command: commandModifyStage,
-              selector: ".jp-CodeCell",
-            });
-          }
-          this._app.docRegistry.addWidgetExtension("Notebook", modelCardPanel);
-          this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
-          this._app.shell.activateById(modelCardPanel.id);
-          modelCardPanel.update();
-        } else if (modelCardPanel && !modelCardPanel.isAttached) {
-          modelCardPanel.setContext(this._context);
-          modelCardPanel.setPanel(panel);
-          this._app.shell.add(modelCardPanel, "main", { mode: "split-right" });
-          this._app.shell.activateById(modelCardPanel.id);
+          this.showPanel(modelCardPanel);
+        } else if (!modelCardPanel.isAttached) {
+          // Reattach detached panel
+          this.updatePanelContext(modelCardPanel, panel);
           this._modelCardPanel = modelCardPanel;
-          modelCardPanel.update();
-        } else if (modelCardPanel && !modelCardPanel.isVisible) {
-          modelCardPanel.setContext(this._context);
-          modelCardPanel.setPanel(panel);
-          this._app.shell.activateById(modelCardPanel.id);
+          this.showPanel(modelCardPanel);
+        } else if (!modelCardPanel.isVisible) {
+          // Show hidden panel
+          this.updatePanelContext(modelCardPanel, panel);
           this._modelCardPanel = modelCardPanel;
-          modelCardPanel.update();
-        } else if (modelCardPanel) {
-          if (this._app.shell.currentWidget === modelCardPanel) {
-            this._app.shell.currentWidget.dispose();
-            modelCardPanel = new ModelCardPanel(
-              this._app,
-              this._docManager,
-              makeid(10),
-              modelCardTitle,
-              createPanel
-            );
-            modelCardPanel.setContext(this._context);
-            modelCardPanel.setPanel(panel);
-            this._modelCardPanel = modelCardPanel;
-            if (!this._app.commands.hasCommand(commandModifyStage)) {
-              this._app.commands.addCommand(commandModifyStage, {
-                label: "[Model Card] Change stage to...",
-                execute: () => {
-                  popUpLauncher(this._modelCardPanel);
-                },
-              });
-              this._app.contextMenu.addItem({
-                command: commandModifyStage,
-                selector: ".jp-CodeCell",
-              });
-            }
-            this._app.docRegistry.addWidgetExtension(
-              "Notebook",
-              modelCardPanel
-            );
-            this._app.shell.add(modelCardPanel, "main", {
-              mode: "split-right",
-            });
-            this._app.shell.activateById(modelCardPanel.id);
-            modelCardPanel.update();
-          } else {
-            modelCardPanel.setContext(this._context);
-            modelCardPanel.setPanel(panel);
-            modelCardPanel.update();
-          }
+          this._app.shell.activateById(modelCardPanel.id);
+        } else if (this._app.shell.currentWidget === modelCardPanel) {
+          // Recreate panel if it's the current widget (toggle behavior)
+          this._app.shell.currentWidget.dispose();
+          modelCardPanel = this.createModelCardPanel(panel, modelCardTitle, createPanel);
+          this._modelCardPanel = modelCardPanel;
+          this.showPanel(modelCardPanel);
+        } else {
+          // Update existing visible panel
+          this.updatePanelContext(modelCardPanel, panel);
         }
       });
     };
 
-    const button = new ToolbarButton({
-      tooltip: "Generate model card",
-      className: "myButton",
-      onClick: () => {
-        createPanel();
-      },
-      label: "Model Card",
-    });
+    // Add DocML dropdown button
+    const dropdownButton = new DocMLDropdown(panel, context, createPanel);
+    dropdownButton.update();
 
-    panel.toolbar.insertItem(0, "jupyterlabClassic", button);
+    panel.toolbar.insertItem(0, "docmlDropdown", dropdownButton);
 
     if (!this._app.commands.hasCommand(createModelCard)) {
       this._app.commands.addCommand(createModelCard, {
@@ -174,7 +167,7 @@ class ModelCardButton
       });
     }
 
-    return button;
+    return dropdownButton;
   }
 }
 

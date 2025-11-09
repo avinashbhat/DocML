@@ -123,6 +123,9 @@ class ModelCardGenerator:
         self.line_to_cell: Dict[int, int] = {}
         self.current_line = 1
 
+        # Load custom sections if config file exists
+        self.sections = self._load_sections_config()
+
     def generate(self) -> Dict[str, Any]:
         """
         Generate the complete model card JSON.
@@ -150,6 +153,26 @@ class ModelCardGenerator:
         logger.info("Model card generation complete")
         return self.schema
 
+    def _load_sections_config(self) -> List[Dict[str, Any]]:
+        """
+        Load custom sections from modelcard.config file if it exists.
+        Falls back to DEFAULT_SECTIONS if not found.
+        """
+        config_path = self.notebook_path.parent / "modelcard.config"
+
+        if config_path.exists():
+            try:
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    config_data = json.load(f)
+                    if "sections" in config_data:
+                        logger.info(f"Loaded custom sections from: {config_path}")
+                        return config_data["sections"]
+            except (json.JSONDecodeError, KeyError) as e:
+                logger.warning(f"Failed to load config from {config_path}: {e}")
+                logger.info("Using default sections")
+
+        return DEFAULT_SECTIONS
+
     def _initialize_schema(self) -> None:
         """Initialize the JSON schema structure"""
         self.schema = {
@@ -161,15 +184,20 @@ class ModelCardGenerator:
             "miscellaneous": self._create_section_schema("Miscellaneous", "", "")
         }
 
-        # Add all default sections
-        for section_def in DEFAULT_SECTIONS:
+        # Add all sections (from config or defaults)
+        for section_def in self.sections:
             section_name = section_def["section"]
             key_name = self._section_to_key(section_name)
 
+            # Handle example field which can be a list or string
+            example = section_def.get("example", "")
+            if isinstance(example, list):
+                example = example[0] if example else ""
+
             self.schema[key_name] = self._create_section_schema(
                 section_name,
-                section_def["description"],
-                section_def["example"]
+                section_def.get("description", ""),
+                example
             )
 
         # Initialize references with links field
@@ -219,7 +247,7 @@ class ModelCardGenerator:
         model_name = self.parser.get_model_name()
         if model_name:
             self.schema["modelname"]["title"] = model_name
-            self.schema["modelname"]["cell_ids"] = 0
+            self.schema["modelname"]["cell_ids"] = [0]
 
     def _process_cells(self) -> None:
         """Process all cells in the notebook"""

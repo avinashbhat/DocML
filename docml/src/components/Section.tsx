@@ -55,21 +55,21 @@ const Bar = styled.div`
   position: relative;
   background: aliceblue;
   width: 40%;
-  height: 40px;
-  border-radius: 10px;
+  height: 20px;
+  border-radius: 5px;
 `;
 
 const VerticalLine: any = styled.div`
   position: absolute;
   left: ${(props: any): string => props.left}%;
   height: 100%;
-  width: 5px;
+  width: 2px;
   background-color: lightskyblue;
-  border-radius: 15px;
+  border-radius: 5px;
   transition: transform 0.2s, background-color 0.2s;
 
   &:hover {
-    transform: scale(3, 1.5);
+    transform: scale(2, 1.5);
     background-color: #1890ff;
     z-index: 2;
     cursor: pointer;

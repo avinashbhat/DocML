@@ -80,10 +80,10 @@ class CellClassifier:
         """
         Check for user annotations in code comments.
 
-        Format: # [model card] stage: Preprocessing
+        Format: # [docml] stage: Preprocessing
         """
-        # Pattern to match: # [model card] stage: StageName
-        pattern = r'#\s*\[model card\]\s*stage:\s*(.+)'
+        # Pattern to match: # [docml] stage: StageName
+        pattern = r'#\s*\[docml\]\s*stage:\s*(.+)'
 
         for line in source_code.split('\n'):
             match = re.search(pattern, line, re.IGNORECASE)

@@ -11,10 +11,10 @@ var _JUPYTERLAB;
 
 var moduleMap = {
 	"./index": () => {
-		return Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DownOutlined_js"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-37062b"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => ((__webpack_require__(/*! ./lib/index.js */ "./lib/index.js")))));
+		return Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DeleteOutlined_js-node_modules_ant-design_icon-91b0ba"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-fc56da"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => ((__webpack_require__(/*! ./lib/index.js */ "./lib/index.js")))));
 	},
 	"./extension": () => {
-		return Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DownOutlined_js"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-37062b"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => ((__webpack_require__(/*! ./lib/index.js */ "./lib/index.js")))));
+		return Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DeleteOutlined_js-node_modules_ant-design_icon-91b0ba"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-fc56da"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => ((__webpack_require__(/*! ./lib/index.js */ "./lib/index.js")))));
 	},
 	"./style": () => {
 		return __webpack_require__.e("style_index_css").then(() => (() => ((__webpack_require__(/*! ./style/index.css */ "./style/index.css")))));
@@ -127,7 +127,7 @@ __webpack_require__.d(exports, {
 /******/ 		// This function allow to reference async chunks
 /******/ 		__webpack_require__.u = (chunkId) => {
 /******/ 			// return url for filenames based on template
-/******/ 			return "" + chunkId + "." + {"vendors-node_modules_ant-design_icons_es_icons_DownOutlined_js":"ac0e504dd7d8c3b808ac","vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-37062b":"849b7a6cf2b134f7d92c","lib_index_js":"e4c8596d3d3582d9d3b1","style_index_css":"763b584c7761ebf8f08e","vendors-node_modules_antd_es_index_js":"cd528373d26af8818a22","vendors-node_modules_immer_dist_immer_mjs":"13545b442f0e7f507427","vendors-node_modules_react-markdown_index_js":"beb607d2304b1f7922c5","vendors-node_modules_styled-components_dist_styled-components_browser_esm_js":"9860513af5e4d9b30d1f","node_modules_use-immer_dist_use-immer_module_js-_d1610":"7519e23529e13aeb13ba","node_modules_use-immer_dist_use-immer_module_js-_d1611":"191e11e210c23ac83058"}[chunkId] + ".js";
+/******/ 			return "" + chunkId + "." + {"vendors-node_modules_ant-design_icons_es_icons_DeleteOutlined_js-node_modules_ant-design_icon-91b0ba":"0fd1e8d0302fa0ad35f5","vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-fc56da":"036a599354f515635553","lib_index_js":"fa7a0390d16e6edb767b","style_index_css":"15d4d6a3367fba43766b","vendors-node_modules_antd_es_index_js":"5366a6794e0448cf0286","vendors-node_modules_immer_dist_immer_mjs":"13545b442f0e7f507427","vendors-node_modules_react-markdown_index_js":"beb607d2304b1f7922c5","vendors-node_modules_styled-components_dist_styled-components_browser_esm_js":"9860513af5e4d9b30d1f","node_modules_use-immer_dist_use-immer_module_js-_d1610":"7519e23529e13aeb13ba","node_modules_use-immer_dist_use-immer_module_js-_d1611":"191e11e210c23ac83058"}[chunkId] + ".js";
 /******/ 		};
 /******/ 	})();
 /******/ 	
@@ -269,8 +269,8 @@ __webpack_require__.d(exports, {
 /******/ 			var promises = [];
 /******/ 			switch(name) {
 /******/ 				case "default": {
-/******/ 					register("antd", "5.28.0", () => (Promise.all([__webpack_require__.e("vendors-node_modules_antd_es_index_js"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DownOutlined_js"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom")]).then(() => (() => (__webpack_require__(/*! ./node_modules/antd/es/index.js */ "./node_modules/antd/es/index.js"))))));
-/******/ 					register("docml", "0.0.8", () => (Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DownOutlined_js"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-37062b"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => (__webpack_require__(/*! ./lib/index.js */ "./lib/index.js"))))));
+/******/ 					register("antd", "5.28.0", () => (Promise.all([__webpack_require__.e("vendors-node_modules_antd_es_index_js"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DeleteOutlined_js-node_modules_ant-design_icon-91b0ba"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom")]).then(() => (() => (__webpack_require__(/*! ./node_modules/antd/es/index.js */ "./node_modules/antd/es/index.js"))))));
+/******/ 					register("docml", "0.0.8", () => (Promise.all([__webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_DeleteOutlined_js-node_modules_ant-design_icon-91b0ba"), __webpack_require__.e("vendors-node_modules_ant-design_icons_es_icons_EditTwoTone_js-node_modules_ant-design_icons_e-fc56da"), __webpack_require__.e("webpack_sharing_consume_default_react"), __webpack_require__.e("webpack_sharing_consume_default_react-dom"), __webpack_require__.e("lib_index_js")]).then(() => (() => (__webpack_require__(/*! ./lib/index.js */ "./lib/index.js"))))));
 /******/ 					register("immer", "10.2.0", () => (__webpack_require__.e("vendors-node_modules_immer_dist_immer_mjs").then(() => (() => (__webpack_require__(/*! ./node_modules/immer/dist/immer.mjs */ "./node_modules/immer/dist/immer.mjs"))))));
 /******/ 					register("react-markdown", "9.1.0", () => (Promise.all([__webpack_require__.e("vendors-node_modules_react-markdown_index_js"), __webpack_require__.e("webpack_sharing_consume_default_react")]).then(() => (() => (__webpack_require__(/*! ./node_modules/react-markdown/index.js */ "./node_modules/react-markdown/index.js"))))));
 /******/ 					register("styled-components", "6.1.19", () => (Promise.all([__webpack_require__.e("vendors-node_modules_styled-components_dist_styled-components_browser_esm_js"), __webpack_require__.e("webpack_sharing_consume_default_react")]).then(() => (() => (__webpack_require__(/*! ./node_modules/styled-components/dist/styled-components.browser.esm.js */ "./node_modules/styled-components/dist/styled-components.browser.esm.js"))))));
@@ -619,4 +619,4 @@ __webpack_require__.d(exports, {
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=remoteEntry.d0fb3bc8ef18a07a48c8.js.map
+//# sourceMappingURL=remoteEntry.5cb67657f3b6701d0bf2.js.map
